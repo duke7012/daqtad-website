@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f6f5fc;color:#2a2735;font-family:Manrope,sans-serif}a{color:oklch(0.55 0.17 285);text-decoration:none}a:hover{color:oklch(0.62 0.17 5)}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 40px;flex-wrap:wrap">
+    <a href="Home.dc.html" style="font-family:Unbounded,sans-serif;font-weight:900;font-size:20px;color:#2a2735;letter-spacing:0.02em">DA'QTAD<span style="color:oklch(0.68 0.15 5)">.</span></a>
+    <nav style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="Home.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Home</a>
+      <a href="Events.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Events</a>
+      <a href="Gallery.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Gallery</a>
+      <a href="Setlists.dc.html" style="font-weight:800;font-size:13px;padding:8px 16px;border-radius:99px;background:#2a2735;color:#fff">Setlists</a>
+      <a href="About.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">About</a>
+    </nav>
+  </header>
+  <section style="padding:48px 40px 16px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box">
+    <h1 style="font-family:Unbounded,sans-serif;font-weight:900;font-size:clamp(34px,5vw,56px);margin:0 0 12px">Setlists</h1>
+    <p style="font-size:16px;color:#555062;margin:0;max-width:560px">Every round of every event — usually ~100 songs each. Sample songs for now; send me the real playlists and I'll fill them in.</p>
+  </section>
+  <section style="padding:28px 40px 48px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:24px">
+    <sc-for list="{{ events }}" as="ev" hint-placeholder-count="3">
+      <div style="background:#fff;border:1.5px solid #e5e2f2;border-radius:24px;padding:24px 28px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+          <h2 style="font-family:Unbounded,sans-serif;font-weight:700;font-size:19px;margin:0">{{ ev.title }}</h2>
+          <span style="font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:oklch(0.55 0.17 5)">{{ ev.date }} · {{ ev.total }} songs total</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+          <sc-for list="{{ ev.tabs }}" as="t" hint-placeholder-count="2">
+            <button onClick="{{ t.pick }}" style="font-family:Manrope,sans-serif;font-weight:800;font-size:12.5px;padding:9px 16px;border-radius:99px;border:1.5px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};cursor:pointer">{{ t.label }} · {{ t.count }}</button>
+          </sc-for>
+        </div>
+        <div style="max-height:380px;overflow:auto;border-top:1px solid #f0eef8">
+          <div style="columns:3;column-gap:44px;padding-top:4px">
+            <sc-for list="{{ ev.songs }}" as="s" hint-placeholder-count="12">
+              <div style="display:flex;gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px solid #f0eef8;break-inside:avoid">
+                <span style="font-family:Unbounded,sans-serif;font-size:10px;font-weight:700;color:oklch(0.68 0.15 285);min-width:26px">{{ s.n }}</span>
+                <span style="font-weight:800;font-size:13px">{{ s.song }}</span>
+                <span style="font-weight:600;font-size:12px;color:#78718c">{{ s.artist }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </section>
+  <footer style="margin-top:auto;padding:32px 40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1.5px solid #e5e2f2;font-size:13px;font-weight:600;color:#78718c">
+    <span>DA'QTAD — Kfans District</span>
+    <span style="display:flex;gap:16px"><a href="https://instagram.com/daqtad" target="_blank">@daqtad</a><a href="https://fb.com/daqtad" target="_blank">fb.com/daqtad</a></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sel: {} };
+  renderVals() {
+    const pool = [
+      ['Whiplash','aespa'],['APT.','ROSÉ & Bruno Mars'],['How Sweet','NewJeans'],['Magnetic','ILLIT'],
+      ['Fate','(G)I-DLE'],['SPOT!','ZICO & JENNIE'],['Sticky','KISS OF LIFE'],['Chk Chk Boom','Stray Kids'],
+      ['Armageddon','aespa'],['Igloo','KISS OF LIFE'],['Mantra','JENNIE'],['Power','G-Dragon'],
+      ['Supernova','aespa'],['EASY','LE SSERAFIM'],['Deja Vu','TXT'],['Impossible','RIIZE'],
+      ['SHEESH','BABYMONSTER'],['Super Shy','NewJeans'],['S-Class','Stray Kids'],['I AM','IVE'],
+      ['Queencard','(G)I-DLE'],['Spicy','aespa'],['UNFORGIVEN','LE SSERAFIM'],['Ditto','NewJeans'],
+      ['Teddy Bear','STAYC'],['Drama','aespa'],['Perfect Night','LE SSERAFIM'],['Standing Next to You','Jung Kook'],
+      ['Get A Guitar','RIIZE'],['You & Me','JENNIE'],['Love Me Again','V'],['HOT','LE SSERAFIM'],
+    ];
+    const mkList = (n, off) => Array.from({ length: n }, (_, i) => {
+      const x = pool[(i + off) % pool.length];
+      return { n: String(i + 1).padStart(3, '0'), song: x[0], artist: x[1] };
+    });
+    const data = [
+      { title: 'Vol. 7 — Summer Splash', date: 'Jul 2026', lists: [['Round 1 · 6:00 PM', mkList(100, 0)], ['Round 2 · 7:30 PM', mkList(100, 11)], ['Finale · 8:30 PM', mkList(40, 23)]] },
+      { title: 'Vol. 6 — Bloom', date: 'Apr 2026', lists: [['Round 1', mkList(100, 5)], ['Round 2', mkList(90, 17)]] },
+      { title: 'Vol. 5 — Year-End Party', date: 'Dec 2025', lists: [['Round 1', mkList(100, 8)], ['Round 2', mkList(100, 21)]] },
+      { title: 'Vol. 4 — Homecoming (Bến Tre)', date: 'Sep 2025', lists: [['Round 1', mkList(80, 3)], ['Round 2', mkList(70, 14)]] },
+    ];
+    const events = data.map((ev, ei) => {
+      const sel = this.state.sel[ei] || 0;
+      return {
+        title: ev.title, date: ev.date,
+        total: ev.lists.reduce((a, l) => a + l[1].length, 0),
+        tabs: ev.lists.map((l, li) => ({
+          label: l[0], count: l[1].length,
+          pick: () => this.setState((s) => ({ sel: { ...s.sel, [ei]: li } })),
+          bg: li === sel ? '#2a2735' : '#fff', fg: li === sel ? '#fff' : '#2a2735', border: li === sel ? '#2a2735' : '#e5e2f2',
+        })),
+        songs: ev.lists[sel][1],
+      };
+    });
+    return { events };
+  }
+}
+</script>
+</body>
+</html>

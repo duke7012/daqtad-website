@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f6f5fc;color:#2a2735;font-family:Manrope,sans-serif}a{color:oklch(0.55 0.17 285);text-decoration:none}a:hover{color:oklch(0.62 0.17 5)}</style>
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 40px;flex-wrap:wrap">
+    <a href="Home.dc.html" style="font-family:Unbounded,sans-serif;font-weight:900;font-size:20px;color:#2a2735;letter-spacing:0.02em">DA'QTAD<span style="color:oklch(0.68 0.15 5)">.</span></a>
+    <nav style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="Home.dc.html" style="font-weight:800;font-size:13px;padding:8px 16px;border-radius:99px;background:#2a2735;color:#fff">Home</a>
+      <a href="Events.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Events</a>
+      <a href="Gallery.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Gallery</a>
+      <a href="Setlists.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Setlists</a>
+      <a href="About.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">About</a>
+    </nav>
+  </header>
+  <section style="padding:8px 24px 0;max-width:1240px;margin:0 auto;width:100%;box-sizing:border-box">
+    <div style="position:relative;border-radius:32px;overflow:hidden;background:#2a2735;min-height:520px;display:flex">
+      <div style="position:absolute;inset:0"><image-slot id="hero-gif" shape="rect" placeholder="Drop your activity GIF here (it becomes the hero background)"></image-slot></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(100deg,rgba(24,19,32,0.88) 0%,rgba(24,19,32,0.6) 55%,rgba(24,19,32,0.15) 100%);pointer-events:none"></div>
+      <div style="position:relative;padding:64px 48px;display:flex;flex-direction:column;justify-content:center;gap:20px;max-width:640px;pointer-events:none">
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;border-radius:99px;border:1.5px solid oklch(0.78 0.12 285);color:oklch(0.85 0.08 285)">K-pop Random Play Dance</span>
+          <span style="font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;border-radius:99px;border:1.5px solid oklch(0.78 0.12 5);color:oklch(0.87 0.08 5)">Bến Tre → Salt Lake City</span>
+        </div>
+        <h1 style="font-family:Unbounded,sans-serif;font-weight:900;font-size:clamp(40px,6vw,80px);line-height:1.02;margin:0;letter-spacing:-0.01em;color:#fff">DA'QTAD<br><span style="color:oklch(0.8 0.12 285)">Kfans</span> <span style="color:oklch(0.82 0.12 5)">District</span></h1>
+        <p style="font-size:17px;line-height:1.6;max-width:520px;margin:0;color:rgba(255,255,255,0.82)">We throw K-pop random play dance events — and this is our little archive. Relive past RPDs, browse photos and setlists, and request songs for the next one. 💜</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="Event Vol 8.dc.html" style="pointer-events:auto;font-weight:800;font-size:15px;padding:14px 26px;border-radius:99px;background:oklch(0.68 0.15 285);color:#fff" style-hover="background:oklch(0.6 0.16 285);color:#fff">Next event ↗</a>
+          <a href="https://instagram.com/daqtad" target="_blank" style="pointer-events:auto;font-weight:800;font-size:15px;padding:14px 26px;border-radius:99px;border:2px solid rgba(255,255,255,0.85);color:#fff" style-hover="background:#fff;color:#2a2735">Instagram</a>
+          <a href="https://fb.com/daqtad" target="_blank" style="pointer-events:auto;font-weight:800;font-size:15px;padding:14px 26px;border-radius:99px;border:2px solid rgba(255,255,255,0.85);color:#fff" style-hover="background:#fff;color:#2a2735">Facebook</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section style="padding:16px 40px 8px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box">
+    <a href="Event Vol 8.dc.html" style="display:block;color:inherit">
+    <div style="background:#2a2735;border-radius:28px;padding:36px 40px;display:flex;gap:36px;align-items:center;flex-wrap:wrap" style-hover="background:#221e2d">
+      <div style="flex:1;min-width:260px">
+        <div style="font-size:12px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.8 0.1 5);margin-bottom:10px">★ Up next</div>
+        <div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:30px;color:#fff;margin-bottom:8px">RPD Vol. 8 — Neon Nights</div>
+        <div style="font-size:15px;color:#b8b2cc;font-weight:600">Sat, Oct 17 2026 · 6:00 PM · Liberty Park, Salt Lake City</div>
+        <div style="margin-top:14px;font-size:14px;font-weight:800;color:oklch(0.82 0.1 285)">Song requests are open → tap to request</div>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:16px;padding:14px 16px;min-width:64px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:28px;color:#fff">{{ cdD }}</div><div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#b8b2cc">DAYS</div></div>
+        <div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:16px;padding:14px 16px;min-width:64px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:28px;color:#fff">{{ cdH }}</div><div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#b8b2cc">HRS</div></div>
+        <div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:16px;padding:14px 16px;min-width:64px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:28px;color:#fff">{{ cdM }}</div><div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#b8b2cc">MIN</div></div>
+        <div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:16px;padding:14px 16px;min-width:64px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:28px;color:oklch(0.8 0.1 5)">{{ cdS }}</div><div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#b8b2cc">SEC</div></div>
+      </div>
+    </div>
+    </a>
+  </section>
+  <section style="padding:48px 40px 24px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:20px">
+      <h2 style="font-family:Unbounded,sans-serif;font-weight:700;font-size:24px;margin:0">Recent events</h2>
+      <a href="Events.dc.html" style="font-weight:800;font-size:14px">All events →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+      <sc-for list="{{ recent }}" as="ev" hint-placeholder-count="3">
+        <a href="{{ ev.href }}" style="display:flex;flex-direction:column;gap:0;background:#fff;border-radius:20px;overflow:hidden;border:1.5px solid #e5e2f2;color:inherit" style-hover="border:1.5px solid oklch(0.68 0.15 285)">
+          <div style="height:170px;position:relative"><image-slot id="{{ ev.slot }}" shape="rect" placeholder="{{ ev.placeholder }}"></image-slot></div>
+          <div style="padding:16px 18px 18px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:oklch(0.55 0.17 5);margin-bottom:6px">{{ ev.date }}</div>
+            <div style="font-family:Unbounded,sans-serif;font-weight:500;font-size:16px;color:#2a2735">{{ ev.title }}</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+  <footer style="margin-top:auto;padding:32px 40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1.5px solid #e5e2f2;font-size:13px;font-weight:600;color:#78718c">
+    <span>DA'QTAD — Kfans District · Salt Lake City, UT 🇺🇸 · from Bến Tre, VN 🇻🇳</span>
+    <span style="display:flex;gap:16px"><a href="https://instagram.com/daqtad" target="_blank">@daqtad</a><a href="https://fb.com/daqtad" target="_blank">fb.com/daqtad</a></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { now: Date.now() };
+  componentDidMount() { this.t = setInterval(() => this.setState({ now: Date.now() }), 1000); }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const target = new Date('2026-10-17T18:00:00-06:00').getTime();
+    let d = Math.max(0, target - this.state.now);
+    const pad = (n) => String(n).padStart(2, '0');
+    const cdD = Math.floor(d / 864e5); d -= cdD * 864e5;
+    const cdH = Math.floor(d / 36e5); d -= cdH * 36e5;
+    const cdM = Math.floor(d / 6e4); d -= cdM * 6e4;
+    const cdS = Math.floor(d / 1e3);
+    const recent = [
+      { title: 'RPD Vol. 7 — Summer Splash', date: 'Jul 18, 2026', href: 'Event Vol 7.dc.html', slot: 'home-v7', placeholder: 'Vol. 7 cover photo' },
+      { title: 'RPD Vol. 6 — Bloom', date: 'Apr 11, 2026', href: 'Events.dc.html', slot: 'home-v6', placeholder: 'Vol. 6 cover photo' },
+      { title: 'RPD Vol. 5 — Year-End Party', date: 'Dec 20, 2025', href: 'Events.dc.html', slot: 'home-v5', placeholder: 'Vol. 5 cover photo' },
+    ];
+    return { cdD: String(cdD), cdH: pad(cdH), cdM: pad(cdM), cdS: pad(cdS), recent };
+  }
+}
+</script>
+</body>
+</html>

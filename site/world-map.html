@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where DA'QTAD hosts events</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<style>
+  html, body { margin: 0; background: #fff; font-family: Manrope, sans-serif; }
+  #map { width: 100%; }
+  .map-fallback {
+    padding: 40px 24px;
+    text-align: center;
+    color: #78718c;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+(async () => {
+  const host = document.getElementById('map');
+  try {
+    const response = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json');
+    if (!response.ok) throw new Error('map data unavailable');
+    const topo = await response.json();
+    const countries = topojson.feature(topo, topo.objects.countries);
+
+    const W = 1000, H = 480;
+    const proj = d3.geoNaturalEarth1().fitSize([W, H], { type: 'Sphere' });
+    const path = d3.geoPath(proj);
+    const svg = d3.select('#map').append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('role', 'img')
+      .attr('aria-label', 'World map with DA\u2019QTAD locations in B\u1EBFn Tre, Vietnam and Salt Lake City, Utah')
+      .attr('style', 'width:100%;height:auto;display:block');
+
+    svg.append('path').datum({ type: 'Sphere' }).attr('d', path).attr('fill', '#f6f5fc');
+    svg.append('g').selectAll('path').data(countries.features).join('path')
+      .attr('d', path).attr('fill', '#e5e2f2').attr('stroke', '#fff').attr('stroke-width', 0.6);
+
+    const pts = [
+      { name: 'Bến Tre, Vietnam', sub: 'where we started', coord: [106.375, 10.24], color: '#de5273', dx: 14, dy: 26, anchor: 'start' },
+      { name: 'Salt Lake City, UT', sub: 'home base now', coord: [-111.891, 40.76], color: '#6d4fd6', dx: 14, dy: -14, anchor: 'start' }
+    ];
+
+    svg.append('path')
+      .datum({ type: 'LineString', coordinates: [pts[0].coord, pts[1].coord] })
+      .attr('d', path).attr('fill', 'none')
+      .attr('stroke', '#8f74ee').attr('stroke-width', 2)
+      .attr('stroke-dasharray', '6 6').attr('stroke-linecap', 'round');
+
+    const g = svg.append('g');
+    pts.forEach((p) => {
+      const [x, y] = proj(p.coord);
+      g.append('circle').attr('cx', x).attr('cy', y).attr('r', 10).attr('fill', p.color).attr('opacity', 0.2);
+      g.append('circle').attr('cx', x).attr('cy', y).attr('r', 5).attr('fill', p.color).attr('stroke', '#fff').attr('stroke-width', 2);
+      g.append('text').attr('x', x + p.dx).attr('y', y + p.dy).attr('text-anchor', p.anchor)
+        .attr('font-size', 15).attr('font-weight', 800).attr('fill', '#2a2735').text(p.name);
+      g.append('text').attr('x', x + p.dx).attr('y', y + p.dy + 16).attr('text-anchor', p.anchor)
+        .attr('font-size', 12).attr('font-weight', 600).attr('fill', '#78718c').text(p.sub);
+    });
+  } catch (err) {
+    host.innerHTML = '<p class="map-fallback">🌏<br>Bến Tre, Vietnam — where we started<br>Salt Lake City, Utah — home base now</p>';
+  }
+})();
+</script>
+</body>
+</html>

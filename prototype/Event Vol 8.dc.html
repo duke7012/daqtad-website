@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f6f5fc;color:#2a2735;font-family:Manrope,sans-serif}a{color:oklch(0.55 0.17 285);text-decoration:none}a:hover{color:oklch(0.62 0.17 5)}input,select{font-family:Manrope,sans-serif}</style>
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 40px;flex-wrap:wrap">
+    <a href="Home.dc.html" style="font-family:Unbounded,sans-serif;font-weight:900;font-size:20px;color:#2a2735;letter-spacing:0.02em">DA'QTAD<span style="color:oklch(0.68 0.15 5)">.</span></a>
+    <nav style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="Home.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Home</a>
+      <a href="Events.dc.html" style="font-weight:800;font-size:13px;padding:8px 16px;border-radius:99px;background:#2a2735;color:#fff">Events</a>
+      <a href="Gallery.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Gallery</a>
+      <a href="Setlists.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Setlists</a>
+      <a href="About.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">About</a>
+    </nav>
+  </header>
+  <section style="padding:36px 40px 0;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box">
+    <a href="Events.dc.html" style="font-size:13px;font-weight:800">← All events</a>
+    <div style="display:flex;gap:32px;margin-top:18px;flex-wrap:wrap">
+      <div style="width:380px;height:475px;flex:none;position:relative"><image-slot id="v8-poster" shape="rounded" radius="24" placeholder="Vol. 8 event poster (4:5)"></image-slot></div>
+      <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:14px">
+        <span style="align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;border-radius:99px;background:oklch(0.68 0.15 5);color:#fff">Upcoming event</span>
+        <h1 style="font-family:Unbounded,sans-serif;font-weight:900;font-size:clamp(30px,4.5vw,48px);margin:0;line-height:1.08">RPD Vol. 8<br><span style="color:oklch(0.68 0.15 285)">Neon Nights</span></h1>
+        <div style="font-size:16px;font-weight:700;color:#555062;line-height:1.7">📅 Saturday, Oct 17 2026 · 6:00–9:00 PM<br>📍 Liberty Park (east pavilion), Salt Lake City, UT<br>🎟 Free — just show up and dance!</div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
+          <div style="text-align:center;background:#fff;border:1.5px solid #e5e2f2;border-radius:16px;padding:14px 18px;min-width:66px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:30px">{{ cdD }}</div><div style="font-size:11px;font-weight:800;letter-spacing:0.1em;color:#78718c">DAYS</div></div>
+          <div style="text-align:center;background:#fff;border:1.5px solid #e5e2f2;border-radius:16px;padding:14px 18px;min-width:66px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:30px">{{ cdH }}</div><div style="font-size:11px;font-weight:800;letter-spacing:0.1em;color:#78718c">HRS</div></div>
+          <div style="text-align:center;background:#fff;border:1.5px solid #e5e2f2;border-radius:16px;padding:14px 18px;min-width:66px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:30px">{{ cdM }}</div><div style="font-size:11px;font-weight:800;letter-spacing:0.1em;color:#78718c">MIN</div></div>
+          <div style="text-align:center;background:#fff;border:1.5px solid #e5e2f2;border-radius:16px;padding:14px 18px;min-width:66px"><div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:30px;color:oklch(0.62 0.17 5)">{{ cdS }}</div><div style="font-size:11px;font-weight:800;letter-spacing:0.1em;color:#78718c">SEC</div></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="https://instagram.com/daqtad" target="_blank" style="font-weight:800;font-size:14px;padding:11px 20px;border-radius:99px;border:2px solid #2a2735;color:#2a2735" style-hover="background:#2a2735;color:#fff">Event post on IG</a>
+          <a href="https://fb.com/daqtad" target="_blank" style="font-weight:800;font-size:14px;padding:11px 20px;border-radius:99px;border:2px solid #2a2735;color:#2a2735" style-hover="background:#2a2735;color:#fff">FB event</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section style="padding:48px 40px 56px;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box">
+    <div style="background:#fff;border:1.5px solid #e5e2f2;border-radius:28px;padding:36px 40px;display:flex;gap:40px;flex-wrap:wrap">
+      <div style="flex:1;min-width:280px">
+        <h2 style="font-family:Unbounded,sans-serif;font-weight:700;font-size:24px;margin:0 0 8px">Request a song 🎵</h2>
+        <p style="font-size:14px;color:#78718c;margin:0 0 20px;line-height:1.6">Want your bias's song in the Vol. 8 playlist? Drop it here! We pick the most-requested ones. (Saved on this device — prototype.)</p>
+        <sc-if value="{{ requestsOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <input value="{{ fName }}" onChange="{{ onName }}" placeholder="Your name / nickname" style="padding:13px 16px;border-radius:12px;border:1.5px solid #e5e2f2;font-size:14px;font-weight:600;outline:none;background:#f6f5fc" style-focus="border:1.5px solid oklch(0.68 0.15 285)">
+          <input value="{{ fSong }}" onChange="{{ onSong }}" placeholder="Song title" style="padding:13px 16px;border-radius:12px;border:1.5px solid #e5e2f2;font-size:14px;font-weight:600;outline:none;background:#f6f5fc" style-focus="border:1.5px solid oklch(0.68 0.15 285)">
+          <input value="{{ fArtist }}" onChange="{{ onArtist }}" placeholder="Artist / group" style="padding:13px 16px;border-radius:12px;border:1.5px solid #e5e2f2;font-size:14px;font-weight:600;outline:none;background:#f6f5fc" style-focus="border:1.5px solid oklch(0.68 0.15 285)">
+          <input value="{{ fTime }}" onChange="{{ onTime }}" placeholder="Timestamp — which part? (e.g. 1:05–1:35, chorus)" style="padding:13px 16px;border-radius:12px;border:1.5px solid #e5e2f2;font-size:14px;font-weight:600;outline:none;background:#f6f5fc" style-focus="border:1.5px solid oklch(0.68 0.15 285)">
+          <input value="{{ fLink }}" onChange="{{ onLink }}" placeholder="Link — dance practice video preferred (optional)" style="padding:13px 16px;border-radius:12px;border:1.5px solid #e5e2f2;font-size:14px;font-weight:600;outline:none;background:#f6f5fc" style-focus="border:1.5px solid oklch(0.68 0.15 285)">
+          <button onClick="{{ submit }}" style="padding:14px 20px;border-radius:99px;border:none;background:oklch(0.68 0.15 285);color:#fff;font-family:Manrope,sans-serif;font-weight:800;font-size:15px;cursor:pointer" style-hover="background:oklch(0.6 0.16 285)">{{ submitLabel }}</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ requestsClosed }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px 20px;border-radius:14px;background:#f6f5fc;border:1.5px dashed #cfc9e6;font-weight:700;color:#78718c;font-size:14px">Song requests are closed for this event 💜 See you on the dance floor!</div>
+        </sc-if>
+      </div>
+      <div style="flex:1;min-width:280px">
+        <h3 style="font-family:Unbounded,sans-serif;font-weight:500;font-size:16px;margin:0 0 14px">Requested so far <span style="color:oklch(0.62 0.17 5)">({{ reqCount }})</span></h3>
+        <sc-if value="{{ hasRequests }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:8px;max-height:340px;overflow:auto">
+            <sc-for list="{{ requests }}" as="r" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:3px;padding:11px 16px;border-radius:12px;background:#f6f5fc">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+                  <div><span style="font-weight:800;font-size:14px">{{ r.song }}</span> <span style="font-weight:600;font-size:13px;color:#78718c">— {{ r.artist }}</span></div>
+                  <span style="font-size:12px;font-weight:700;color:oklch(0.55 0.17 285);white-space:nowrap">{{ r.name }}</span>
+                </div>
+                <div style="display:flex;gap:12px;align-items:center;font-size:12px;font-weight:700;color:#78718c">
+                  <span>⏱ {{ r.time }}</span>
+                  <sc-if value="{{ r.hasLink }}" hint-placeholder-val="{{ false }}"><a href="{{ r.link }}" target="_blank" style="font-weight:800">▶ dance practice ↗</a></sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noRequests }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px 20px;border-radius:14px;border:1.5px dashed #cfc9e6;color:#78718c;font-weight:600;font-size:14px">No requests yet — be the first! ✨</div>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+  <footer style="margin-top:auto;padding:32px 40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1.5px solid #e5e2f2;font-size:13px;font-weight:600;color:#78718c">
+    <span>DA'QTAD — Kfans District</span>
+    <span style="display:flex;gap:16px"><a href="https://instagram.com/daqtad" target="_blank">@daqtad</a><a href="https://fb.com/daqtad" target="_blank">fb.com/daqtad</a></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;requestsOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { now: Date.now(), name: '', song: '', artist: '', time: '', link: '', requests: [], justSent: false };
+  componentDidMount() {
+    this.t = setInterval(() => this.setState({ now: Date.now() }), 1000);
+    try { this.setState({ requests: JSON.parse(localStorage.getItem('daqtad-requests-vol8') || '[]').map((r) => ({ time: 'any part', link: '', hasLink: false, ...r })) }); } catch (e) {}
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const target = new Date('2026-10-17T18:00:00-06:00').getTime();
+    let d = Math.max(0, target - this.state.now);
+    const pad = (n) => String(n).padStart(2, '0');
+    const cdD = Math.floor(d / 864e5); d -= cdD * 864e5;
+    const cdH = Math.floor(d / 36e5); d -= cdH * 36e5;
+    const cdM = Math.floor(d / 6e4); d -= cdM * 6e4;
+    const cdS = Math.floor(d / 1e3);
+    const open = this.props.requestsOpen ?? true;
+    const reqs = this.state.requests;
+    return {
+      cdD: String(cdD), cdH: pad(cdH), cdM: pad(cdM), cdS: pad(cdS),
+      requestsOpen: open, requestsClosed: !open,
+      fName: this.state.name, fSong: this.state.song, fArtist: this.state.artist, fTime: this.state.time, fLink: this.state.link,
+      onName: (e) => this.setState({ name: e.target.value }),
+      onSong: (e) => this.setState({ song: e.target.value }),
+      onArtist: (e) => this.setState({ artist: e.target.value }),
+      onTime: (e) => this.setState({ time: e.target.value }),
+      onLink: (e) => this.setState({ link: e.target.value }),
+      submitLabel: this.state.justSent ? 'Requested! 💜' : 'Send request →',
+      submit: () => {
+        const { name, song, artist, time, link } = this.state;
+        if (!song.trim()) return;
+        const requests = [{ name: name.trim() || 'anon', song: song.trim(), artist: artist.trim() || '—', time: time.trim() || 'any part', link: link.trim(), hasLink: /^https?:\/\//.test(link.trim()) }, ...this.state.requests];
+        localStorage.setItem('daqtad-requests-vol8', JSON.stringify(requests));
+        this.setState({ requests, name: '', song: '', artist: '', time: '', link: '', justSent: true });
+        clearTimeout(this.j); this.j = setTimeout(() => this.setState({ justSent: false }), 1800);
+      },
+      requests: reqs, reqCount: reqs.length, hasRequests: reqs.length > 0, noRequests: reqs.length === 0,
+    };
+  }
+}
+</script>
+</body>
+</html>

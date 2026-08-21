@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f6f5fc;color:#2a2735;font-family:Manrope,sans-serif}a{color:oklch(0.55 0.17 285);text-decoration:none}a:hover{color:oklch(0.62 0.17 5)}</style>
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 40px;flex-wrap:wrap">
+    <a href="Home.dc.html" style="font-family:Unbounded,sans-serif;font-weight:900;font-size:20px;color:#2a2735;letter-spacing:0.02em">DA'QTAD<span style="color:oklch(0.68 0.15 5)">.</span></a>
+    <nav style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="Home.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Home</a>
+      <a href="Events.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Events</a>
+      <a href="Gallery.dc.html" style="font-weight:800;font-size:13px;padding:8px 16px;border-radius:99px;background:#2a2735;color:#fff">Gallery</a>
+      <a href="Setlists.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Setlists</a>
+      <a href="About.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">About</a>
+    </nav>
+  </header>
+  <section style="padding:48px 40px 16px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box">
+    <h1 style="font-family:Unbounded,sans-serif;font-weight:900;font-size:clamp(34px,5vw,56px);margin:0 0 12px">Gallery</h1>
+    <p style="font-size:16px;color:#555062;margin:0;max-width:520px">Favorite moments from every RPD. Drag photos from your Google Drive folder straight onto the tiles.</p>
+  </section>
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+    <section style="padding:28px 40px 12px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box">
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px">
+        <h2 style="font-family:Unbounded,sans-serif;font-weight:700;font-size:20px;margin:0">{{ g.title }}</h2>
+        <span style="font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:oklch(0.55 0.17 5)">{{ g.date }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <sc-for list="{{ g.photos }}" as="p" hint-placeholder-count="4">
+          <div style="height:200px;position:relative"><image-slot id="{{ p.slot }}" shape="rounded" radius="14" placeholder="{{ p.label }}"></image-slot></div>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+  <footer style="margin-top:auto;padding:32px 40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1.5px solid #e5e2f2;font-size:13px;font-weight:600;color:#78718c">
+    <span>DA'QTAD — Kfans District</span>
+    <span style="display:flex;gap:16px"><a href="https://instagram.com/daqtad" target="_blank">@daqtad</a><a href="https://fb.com/daqtad" target="_blank">fb.com/daqtad</a></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const mk = (key, n) => Array.from({ length: n }, (_, i) => ({ slot: 'gal-' + key + '-' + (i + 1), label: 'photo ' + (i + 1) }));
+    return { groups: [
+      { title: 'Vol. 7 — Summer Splash', date: 'Jul 2026', photos: mk('v7', 6) },
+      { title: 'Vol. 6 — Bloom', date: 'Apr 2026', photos: mk('v6', 6) },
+      { title: 'Vol. 5 — Year-End Party', date: 'Dec 2025', photos: mk('v5', 6) },
+      { title: 'Vol. 4 — Homecoming (Bến Tre)', date: 'Sep 2025', photos: mk('v4', 6) },
+    ] };
+  }
+}
+</script>
+</body>
+</html>

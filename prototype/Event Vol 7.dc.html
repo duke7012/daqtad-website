@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f6f5fc;color:#2a2735;font-family:Manrope,sans-serif}a{color:oklch(0.55 0.17 285);text-decoration:none}a:hover{color:oklch(0.62 0.17 5)}</style>
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 40px;flex-wrap:wrap">
+    <a href="Home.dc.html" style="font-family:Unbounded,sans-serif;font-weight:900;font-size:20px;color:#2a2735;letter-spacing:0.02em">DA'QTAD<span style="color:oklch(0.68 0.15 5)">.</span></a>
+    <nav style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="Home.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Home</a>
+      <a href="Events.dc.html" style="font-weight:800;font-size:13px;padding:8px 16px;border-radius:99px;background:#2a2735;color:#fff">Events</a>
+      <a href="Gallery.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Gallery</a>
+      <a href="Setlists.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">Setlists</a>
+      <a href="About.dc.html" style="font-weight:700;font-size:13px;padding:8px 16px;border-radius:99px;color:#2a2735" style-hover="background:#eceafb">About</a>
+    </nav>
+  </header>
+  <section style="padding:36px 40px 0;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box">
+    <a href="Events.dc.html" style="font-size:13px;font-weight:800">← All events</a>
+    <div style="display:flex;gap:32px;margin-top:18px;flex-wrap:wrap;align-items:center">
+      <div style="width:380px;height:475px;flex:none;position:relative"><image-slot id="v7-poster" shape="rounded" radius="24" placeholder="Vol. 7 event poster (4:5)"></image-slot></div>
+      <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:14px">
+        <span style="align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;border-radius:99px;background:#eceafb;color:oklch(0.5 0.16 285)">Past event · Jul 18, 2026</span>
+        <h1 style="font-family:Unbounded,sans-serif;font-weight:900;font-size:clamp(30px,4.5vw,48px);margin:0;line-height:1.08">RPD Vol. 7<br><span style="color:oklch(0.68 0.15 285)">Summer Splash</span></h1>
+        <div style="font-size:16px;font-weight:700;color:#555062;line-height:1.7">📍 Sugar House Park, Salt Lake City, UT<br>💃 ~60 dancers · 3 hours · 45 songs</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="https://instagram.com/daqtad" target="_blank" style="font-weight:800;font-size:14px;padding:11px 20px;border-radius:99px;border:2px solid #2a2735;color:#2a2735" style-hover="background:#2a2735;color:#fff">IG recap post</a>
+          <a href="https://fb.com/daqtad" target="_blank" style="font-weight:800;font-size:14px;padding:11px 20px;border-radius:99px;border:2px solid #2a2735;color:#2a2735" style-hover="background:#2a2735;color:#fff">FB album</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section style="padding:48px 40px 0;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box">
+    <h2 style="font-family:Unbounded,sans-serif;font-weight:700;font-size:24px;margin:0 0 16px">Recap video 🎬</h2>
+    <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:24px;overflow:hidden;background:#2a2735;display:flex;align-items:center;justify-content:center">
+      <div style="text-align:center;color:#b8b2cc;font-weight:700;font-size:15px;line-height:1.7">▶️<br>YouTube recap goes here<br><span style="font-family:ui-monospace,monospace;font-size:12px;color:#78718c">send me the YouTube link and I'll embed it</span></div>
+    </div>
+  </section>
+  <section style="padding:48px 40px 0;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box">
+    <h2 style="font-family:Unbounded,sans-serif;font-weight:700;font-size:24px;margin:0 0 16px">Photos 📸</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px">
+      <sc-for list="{{ photos }}" as="p" hint-placeholder-count="6">
+        <div style="height:220px;position:relative"><image-slot id="{{ p.slot }}" shape="rounded" radius="16" placeholder="{{ p.label }}"></image-slot></div>
+      </sc-for>
+    </div>
+  </section>
+  <section style="padding:48px 40px 56px;max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box">
+    <h2 style="font-family:Unbounded,sans-serif;font-weight:700;font-size:24px;margin:0 0 16px">Setlists 🎵 <span style="font-family:Manrope,sans-serif;font-size:14px;font-weight:700;color:#78718c">(sample songs — send me the real playlists)</span></h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.pick }}" style="font-family:Manrope,sans-serif;font-weight:800;font-size:13px;padding:10px 18px;border-radius:99px;border:1.5px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};cursor:pointer">{{ t.label }} · {{ t.count }} songs</button>
+      </sc-for>
+    </div>
+    <div style="background:#fff;border:1.5px solid #e5e2f2;border-radius:24px;padding:6px 28px 12px;max-height:460px;overflow:auto">
+      <div style="columns:3;column-gap:44px">
+        <sc-for list="{{ setlist }}" as="s" hint-placeholder-count="12">
+          <div style="display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #f0eef8;break-inside:avoid">
+            <span style="font-family:Unbounded,sans-serif;font-size:10px;font-weight:700;color:oklch(0.68 0.15 5);min-width:26px">{{ s.n }}</span>
+            <span style="font-weight:800;font-size:13.5px">{{ s.song }}</span>
+            <span style="font-weight:600;font-size:12.5px;color:#78718c">{{ s.artist }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+  <footer style="margin-top:auto;padding:32px 40px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1.5px solid #e5e2f2;font-size:13px;font-weight:600;color:#78718c">
+    <span>DA'QTAD — Kfans District</span>
+    <span style="display:flex;gap:16px"><a href="https://instagram.com/daqtad" target="_blank">@daqtad</a><a href="https://fb.com/daqtad" target="_blank">fb.com/daqtad</a></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 0 };
+  renderVals() {
+    const photos = Array.from({ length: 8 }, (_, i) => ({ slot: 'v7-photo-' + (i + 1), label: 'Vol. 7 photo ' + (i + 1) }));
+    const pool = [
+      ['Whiplash', 'aespa'], ['APT.', 'ROSÉ & Bruno Mars'], ['How Sweet', 'NewJeans'], ['Magnetic', 'ILLIT'],
+      ['Fate', '(G)I-DLE'], ['SPOT!', 'ZICO & JENNIE'], ['Sticky', 'KISS OF LIFE'], ['Chk Chk Boom', 'Stray Kids'],
+      ['Armageddon', 'aespa'], ['Igloo', 'KISS OF LIFE'], ['Mantra', 'JENNIE'], ['Power', 'G-Dragon'],
+      ['Supernova', 'aespa'], ['EASY', 'LE SSERAFIM'], ['Deja Vu', 'TXT'], ['Impossible', 'RIIZE'],
+      ['SHEESH', 'BABYMONSTER'], ['Super Shy', 'NewJeans'], ['S-Class', 'Stray Kids'], ['I AM', 'IVE'],
+      ['Queencard', '(G)I-DLE'], ['Spicy', 'aespa'], ['UNFORGIVEN', 'LE SSERAFIM'], ['Ditto', 'NewJeans'],
+      ['Teddy Bear', 'STAYC'], ['Drama', 'aespa'], ['Perfect Night', 'LE SSERAFIM'], ['Standing Next to You', 'Jung Kook'],
+      ['Get A Guitar', 'RIIZE'], ['You & Me', 'JENNIE'], ['Love Me Again', 'V'], ['HOT', 'LE SSERAFIM'],
+    ];
+    const mkList = (n, off) => Array.from({ length: n }, (_, i) => {
+      const x = pool[(i + off) % pool.length];
+      return { n: String(i + 1).padStart(3, '0'), song: x[0], artist: x[1] };
+    });
+    const lists = [
+      { label: 'Round 1 · 6:00 PM', songs: mkList(100, 0) },
+      { label: 'Round 2 · 7:30 PM', songs: mkList(100, 11) },
+      { label: 'Finale · 8:30 PM', songs: mkList(40, 23) },
+    ];
+    const tab = this.state.tab;
+    const tabs = lists.map((l, i) => ({
+      label: l.label, count: l.songs.length, pick: () => this.setState({ tab: i }),
+      bg: i === tab ? '#2a2735' : '#fff', fg: i === tab ? '#fff' : '#2a2735', border: i === tab ? '#2a2735' : '#e5e2f2',
+    }));
+    return { photos, tabs, setlist: lists[tab].songs };
+  }
+}
+</script>
+</body>
+</html>
