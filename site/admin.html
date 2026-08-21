@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · DA'QTAD</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f6f5fc">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <div class="admin-bar">
+    <a class="admin-bar__brand" href="index.html">DA'QTAD<span>. admin</span></a>
+    <div class="admin-bar__right" data-render="session"></div>
+  </div>
+
+  <div data-render="app">
+    <p class="admin-hint">Loading…</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

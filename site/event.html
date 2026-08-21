@@ -3,53 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RPD Vol. 8 — Neon Nights · DA'QTAD</title>
-<meta name="description" content="DA'QTAD RPD Vol. 8 — Neon Nights. Saturday, Oct 17 2026, 6:00–9:00 PM at Liberty Park, Salt Lake City. Free entry, and song requests are open.">
-<link rel="canonical" href="https://daqtad.com/event-vol-8.html">
+<title>Event · DA'QTAD</title>
+<meta name="description" content="Photos, recap video and the full setlist from a DA'QTAD random play dance event in Salt Lake City.">
+<meta name="robots" content="noindex">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="DA'QTAD — Kfans District">
-<meta property="og:title" content="RPD Vol. 8 — Neon Nights · DA'QTAD">
-<meta property="og:description" content="Sat, Oct 17 2026 · 6:00 PM · Liberty Park, Salt Lake City. Free K-pop random play dance — request your songs.">
-<meta property="og:url" content="https://daqtad.com/event-vol-8.html">
-<meta property="og:image" content="https://daqtad.com/assets/images/events/vol-8-poster.jpg">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="Event · DA'QTAD">
 <meta name="theme-color" content="#f6f5fc">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Event",
-  "name": "DA'QTAD RPD Vol. 8 — Neon Nights",
-  "startDate": "2026-10-17T18:00:00-06:00",
-  "endDate": "2026-10-17T21:00:00-06:00",
-  "eventStatus": "https://schema.org/EventScheduled",
-  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-  "location": {
-    "@type": "Place",
-    "name": "Liberty Park (east pavilion)",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Salt Lake City",
-      "addressRegion": "UT",
-      "addressCountry": "US"
-    }
-  },
-  "organizer": { "@type": "Organization", "name": "DA'QTAD — Kfans District" },
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD",
-    "availability": "https://schema.org/InStock",
-    "url": "https://daqtad.com/event-vol-8.html"
-  }
-}
-</script>
 </head>
-<body data-page="event" data-event="vol-8">
+<!-- Generic event page: every event added in the admin gets one of these at
+     event.html?slug=its-slug, so no new file has to be written by hand. -->
+<body data-page="event">
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="page">
 
@@ -72,36 +41,31 @@
       <a class="link-strong" href="events.html">← All events</a>
       <div class="event-hero">
         <div class="event-hero__poster" data-render="poster"></div>
-        <div class="event-hero__body">
-          <span class="tag tag--live">Upcoming event</span>
-          <h1 class="event-hero__title">RPD Vol. 8<br><span>Neon Nights</span></h1>
-          <p class="event-facts">
-            📅 Saturday, Oct 17 2026 · 6:00–9:00 PM<br>
-            📍 Liberty Park (east pavilion), Salt Lake City, UT<br>
-            🎟 Free — just show up and dance!
-          </p>
-          <div class="countdown countdown--light" data-countdown="2026-10-17T18:00:00-06:00">
-            <div class="cd-unit"><b data-unit="d">–</b><span>DAYS</span></div>
-            <div class="cd-unit"><b data-unit="h">–</b><span>HRS</span></div>
-            <div class="cd-unit"><b data-unit="m">–</b><span>MIN</span></div>
-            <div class="cd-unit"><b data-unit="s">–</b><span>SEC</span></div>
-          </div>
-          <div class="btn-row">
-            <a class="btn btn--outline btn--sm btn--icon" href="https://instagram.com/daqtad" target="_blank" rel="noopener"><span class="icon icon--instagram" aria-hidden="true"></span>Event post</a>
-            <a class="btn btn--outline btn--sm btn--icon" href="https://fb.com/daqtad" target="_blank" rel="noopener"><span class="icon icon--facebook" aria-hidden="true"></span>Event page</a>
-          </div>
-        </div>
+        <div class="event-hero__body" data-render="event-head"></div>
       </div>
+      <noscript>
+        <p class="notice">This page needs JavaScript to load the event details.
+          Please enable it, or see our Instagram for the latest.</p>
+      </noscript>
     </section>
 
-    <section class="section section--narrow section--last">
+    <section class="section section--narrow" data-optional="video">
+      <h2 class="h2">Recap video 🎬</h2>
+      <div class="video-frame" data-render="video"></div>
+    </section>
+
+    <section class="section section--narrow" data-optional="photos">
+      <h2 class="h2">Photos 📸</h2>
+      <div class="photo-grid photo-grid--lg" data-render="photos"></div>
+    </section>
+
+    <section class="section section--narrow" data-optional="requests">
       <div class="panel">
         <div class="panel__col">
           <h2 class="h2">Request a song 🎵</h2>
-          <p class="panel__note">Want your bias's song in the Vol. 8 playlist? Drop it here — we pick the most-requested ones.</p>
+          <p class="panel__note">Want your bias's song in the playlist? Drop it here — we pick the most-requested ones.</p>
 
-          <form class="form" id="request-form" name="song-request" data-netlify="true">
-            <input type="hidden" name="form-name" value="song-request">
+          <form class="form" id="request-form" name="song-request">
             <label class="visually-hidden" for="req-name">Your name</label>
             <input id="req-name" name="name" type="text" placeholder="Your name / nickname" autocomplete="nickname">
             <label class="visually-hidden" for="req-song">Song title</label>
@@ -122,6 +86,12 @@
           <div data-render="requests"></div>
         </div>
       </div>
+    </section>
+
+    <section class="section section--narrow section--last" data-optional="setlist">
+      <h2 class="h2">Setlists 🎵</h2>
+      <p class="lede lede--tight">Every song from each round, in order. Use the search box to check whether a track was played.</p>
+      <div data-render="setlist"></div>
     </section>
   </main>
 

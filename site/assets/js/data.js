@@ -1,14 +1,12 @@
 /* ==========================================================================
-   DA'QTAD — site content
+   DA'QTAD — fallback content
    --------------------------------------------------------------------------
-   This is the only file you need to edit to update the site.
-   Save it, refresh the page, done. No build step, no npm.
+   The site is edited at /admin.html and reads from the database. You do not
+   need to touch this file.
 
-   Adding a new event:
-     1. Copy one of the blocks in `events` below and change the values.
-     2. Put its poster in assets/images/events/ and photos in assets/images/gallery/.
-     3. If it needs its own page, copy event-vol-8.html and change the
-        data-event="..." value in the <body> tag to the new slug.
+   It is the safety net: if the database is unreachable and the visitor has no
+   cached copy, the site shows this instead of an empty page. It holds the
+   content as it was before the database was set up.
    ========================================================================== */
 
 window.SITE = (function () {

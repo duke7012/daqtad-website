@@ -1,13 +1,14 @@
 /* ==========================================================================
    DA'QTAD — site behaviour
    Plain browser JavaScript, no framework and no build step.
-   Content lives in data.js; this file only renders and wires it up.
+   Content comes from store.js (the database, with data.js as a fallback);
+   this file only renders it and wires up the interactions.
    ========================================================================== */
 
 (function () {
   'use strict';
 
-  var D = window.SITE;
+  var D = null; // filled in by boot() once the content has loaded
 
   /* --------------------------------------------------------- utilities -- */
 
@@ -383,6 +384,12 @@
   function renderGallery(host) {
     var groups = D.past().filter(function (ev) { return ev.photos && ev.photos.length; });
 
+    if (!groups.length) {
+      host.innerHTML = '<div class="notice notice--plain">No photos uploaded yet — ' +
+        'add them from the admin page and they will appear here. 📷</div>';
+      return;
+    }
+
     host.innerHTML = groups.map(function (ev, gi) {
       var tiles = ev.photos.map(function (photo, i) {
         return '<button class="tile" type="button" data-index="' + i + '"' +
@@ -429,7 +436,70 @@
 
   /* ----------------------------------------------- page: single event --- */
 
+  // Header for the generic event.html. The hand-written event pages have this
+  // markup written out in the HTML instead, so they skip this.
+  function renderEventHead(host, ev) {
+    var upcoming = ev.status === 'upcoming';
+    var when = [ev.dateLabel, ev.timeLabel].filter(Boolean).join(' · ');
+
+    var facts = [];
+    if (when) facts.push('📅 ' + esc(when));
+    if (ev.venue) facts.push('📍 ' + esc(ev.venue));
+    if (ev.stats) facts.push('💃 ' + esc(ev.stats));
+
+    var social = '';
+    if (D.social.instagram) {
+      social += '<a class="btn btn--outline btn--sm btn--icon" href="' + esc(D.social.instagram) +
+        '" target="_blank" rel="noopener">' +
+        '<span class="icon icon--instagram" aria-hidden="true"></span>Instagram</a>';
+    }
+    if (D.social.facebook) {
+      social += '<a class="btn btn--outline btn--sm btn--icon" href="' + esc(D.social.facebook) +
+        '" target="_blank" rel="noopener">' +
+        '<span class="icon icon--facebook" aria-hidden="true"></span>Photo album</a>';
+    }
+
+    host.innerHTML =
+      '<span class="tag ' + (upcoming ? 'tag--live' : 'tag--past') + '">' +
+        esc(upcoming ? (ev.badge || 'Upcoming') : 'Past event · ' + ev.dateLabel) +
+      '</span>' +
+      '<h1 class="event-hero__title">' + esc(ev.name) +
+        (ev.subtitle ? '<br><span>' + esc(ev.subtitle) + '</span>' : '') +
+      '</h1>' +
+      (facts.length ? '<p class="event-facts">' + facts.join('<br>') + '</p>' : '') +
+      (upcoming && ev.startsAt
+        ? '<div class="countdown" data-countdown="' + esc(ev.startsAt) + '">' +
+            '<div class="cd-unit"><b data-unit="d">–</b><span>DAYS</span></div>' +
+            '<div class="cd-unit"><b data-unit="h">–</b><span>HRS</span></div>' +
+            '<div class="cd-unit"><b data-unit="m">–</b><span>MIN</span></div>' +
+            '<div class="cd-unit"><b data-unit="s">–</b><span>SEC</span></div>' +
+          '</div>'
+        : '') +
+      (social ? '<div class="btn-row">' + social + '</div>' : '');
+
+    document.title = ev.title + " · DA'QTAD";
+  }
+
+  // Drops the sections of the generic page that this event has nothing for.
+  function trimEventSections(ev) {
+    var filled = {
+      video: !!ev.video,
+      photos: !!(ev.photos && ev.photos.length),
+      setlist: !!(ev.rounds && ev.rounds.length),
+      requests: !!ev.requestsOpen
+    };
+    $$('[data-optional]').forEach(function (section) {
+      if (!filled[section.getAttribute('data-optional')]) section.remove();
+    });
+  }
+
   function renderEventPage(ev) {
+    var head = $('[data-render="event-head"]');
+    if (head) {
+      renderEventHead(head, ev);
+      trimEventSections(ev);
+    }
+
     var poster = $('[data-render="poster"]');
     if (poster) {
       poster.innerHTML = media(ev.poster, ev.posterAlt, ev.name + ' event poster (4:5)',
@@ -447,7 +517,7 @@
           ' allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"></iframe>';
       } else {
         video.innerHTML = '<div class="video-frame__empty">▶️<span>Recap video coming soon</span>' +
-          '<small>add the YouTube link in assets/js/data.js</small></div>';
+          '<small>add the YouTube link on the admin page</small></div>';
       }
     }
 
@@ -472,6 +542,10 @@
 
   /* --------------------------------------------------- song requests ---- */
 
+  // Requests go to the database when it is connected, so everyone sees the
+  // same list. Without a database they fall back to this browser only.
+  var useDatabase = window.SITE_STORE.configured;
+
   function storageKey(ev) { return 'daqtad-requests-' + ev.slug; }
 
   function readRequests(ev) {
@@ -488,12 +562,23 @@
     } catch (err) { /* private browsing — the request was still sent */ }
   }
 
-  function renderRequestList(ev, host, countNode) {
-    var list = readRequests(ev);
+  function fetchRequests(ev) {
+    if (!useDatabase || !ev.id) return Promise.resolve(readRequests(ev));
+    return window.SITE_STORE.listRequests(ev.id).then(function (rows) {
+      return (rows || []).map(function (row) {
+        return {
+          name: row.name, song: row.song, artist: row.artist,
+          time: row.part, link: row.link
+        };
+      });
+    }).catch(function () { return readRequests(ev); });
+  }
+
+  function paintRequests(list, host, countNode) {
     if (countNode) countNode.textContent = String(list.length);
 
     if (!list.length) {
-      host.innerHTML = '<div class="notice notice--plain">No requests from this device yet — be the first! ✨</div>';
+      host.innerHTML = '<div class="notice notice--plain">No requests yet — be the first! ✨</div>';
       return;
     }
 
@@ -522,14 +607,19 @@
     var button = $('button[type="submit"]', form);
     var endpoint = (D.requests && D.requests.endpoint) || '';
 
+    function refresh() {
+      if (!host) return;
+      fetchRequests(ev).then(function (list) { paintRequests(list, host, countNode); });
+    }
+
     if (!ev.requestsOpen) {
       form.innerHTML = '<div class="notice">Song requests are closed for this event 💜 ' +
         'See you on the dance floor!</div>';
-      renderRequestList(ev, host, countNode);
+      refresh();
       return;
     }
 
-    renderRequestList(ev, host, countNode);
+    refresh();
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
@@ -549,23 +639,39 @@
       }
 
       status.removeAttribute('data-error');
-      writeRequests(ev, [entry].concat(readRequests(ev)));
-      renderRequestList(ev, host, countNode);
 
-      function done(message) {
+      function done(message, failed) {
         status.textContent = message;
+        if (failed) status.setAttribute('data-error', '');
         form.reset();
         button.disabled = false;
         button.textContent = 'Send request →';
       }
 
-      if (!endpoint) {
-        done('Saved on this device 💜 (connect a form endpoint in data.js to receive these)');
+      button.disabled = true;
+      button.textContent = 'Sending…';
+
+      if (useDatabase && ev.id) {
+        window.SITE_STORE.addRequest(ev.id, entry)
+          .then(function () {
+            done('Requested! 💜 Thanks — we read every one.');
+            refresh();
+          })
+          .catch(function () {
+            done('Could not send right now — please DM us on Instagram instead.', true);
+          });
         return;
       }
 
-      button.disabled = true;
-      button.textContent = 'Sending…';
+      // No database connected: keep the request on this device, and post it to
+      // a form service if one is configured in data.js.
+      writeRequests(ev, [entry].concat(readRequests(ev)));
+      refresh();
+
+      if (!endpoint) {
+        done('Saved on this device 💜 (connect the database to collect these for real)');
+        return;
+      }
 
       var url = endpoint === 'netlify' ? location.pathname : endpoint;
       var options = endpoint === 'netlify'
@@ -586,8 +692,7 @@
           done('Requested! 💜 Thanks — we read every one.');
         })
         .catch(function () {
-          status.setAttribute('data-error', '');
-          done('Could not send right now — please DM us on Instagram instead.');
+          done('Could not send right now — please DM us on Instagram instead.', true);
         });
     });
   }
@@ -602,9 +707,19 @@
 
   /* ------------------------------------------------------------- boot --- */
 
-  function boot() {
-    initChrome();
+  function eventNotFound(slug) {
+    var main = $('#main');
+    if (!main) return;
+    main.innerHTML = '<section class="section section--narrow">' +
+      '<a class="link-strong" href="events.html">← All events</a>' +
+      '<h1 class="event-hero__title">Event not found</h1>' +
+      '<p class="lede">There is no event called “' + esc(slug) + '”. ' +
+      'It may have been renamed or removed.</p>' +
+      '<div class="btn-row"><a class="btn btn--primary" href="events.html">See all events</a></div>' +
+      '</section>';
+  }
 
+  function render() {
     var page = document.body.getAttribute('data-page');
 
     if (page === 'home') {
@@ -624,12 +739,25 @@
     }
 
     if (page === 'event') {
-      var ev = D.get(document.body.getAttribute('data-event'));
+      // Hand-written pages name their event in the body tag; the generic
+      // event.html takes it from ?slug=... instead.
+      var slug = document.body.getAttribute('data-event') ||
+        new URLSearchParams(location.search).get('slug') || '';
+      var ev = D.get(slug);
       if (ev) renderEventPage(ev);
+      else eventNotFound(slug);
     }
 
     initMedia(document);
     initCountdowns();
+  }
+
+  function boot() {
+    initChrome();
+    window.SITE_STORE.load().then(function (data) {
+      D = data;
+      render();
+    });
   }
 
   if (document.readyState === 'loading') {
