@@ -36,6 +36,10 @@
     round: null,        // round currently open in the song editor
     roundSongs: [],
     songQuery: '',
+    songSort: 'title-asc',
+    songArtist: '',
+    songLetter: '',
+    songEditId: '',
     requests: [],
     requestsFor: ''
   };
@@ -640,58 +644,217 @@
 
   /* ------------------------------------------------------- view: songs -- */
 
-  function songsView() {
-    var query = state.songQuery.toLowerCase();
-    var matches = !query ? state.songs : state.songs.filter(function (song) {
-      return (song.title + ' ' + song.artist).toLowerCase().indexOf(query) !== -1;
+  function songLetterOf(value) {
+    var match = /[a-z0-9]/i.exec(String(value || ''));
+    if (!match) return '#';
+    return /[0-9]/.test(match[0]) ? '#' : match[0].toUpperCase();
+  }
+
+  function songSortKey() {
+    return state.songSort.indexOf('artist') === 0 ? 'artist' : 'title';
+  }
+
+  function compareSongs(a, b) {
+    var byArtist = songSortKey() === 'artist';
+    var primaryA = byArtist ? a.artist : a.title;
+    var primaryB = byArtist ? b.artist : b.title;
+    var secondaryA = byArtist ? a.title : a.artist;
+    var secondaryB = byArtist ? b.title : b.artist;
+    var dir = state.songSort.indexOf('desc') !== -1 ? -1 : 1;
+    var first = String(primaryA || '').localeCompare(String(primaryB || ''), undefined, {
+      sensitivity: 'base', numeric: true
+    });
+    if (first) return first * dir;
+    return String(secondaryA || '').localeCompare(String(secondaryB || ''), undefined, {
+      sensitivity: 'base', numeric: true
+    }) * dir;
+  }
+
+  function songPassesFilters(song, ignoreLetter) {
+    var query = state.songQuery.trim().toLowerCase();
+    if (query && (song.title + ' ' + song.artist).toLowerCase().indexOf(query) === -1) {
+      return false;
+    }
+    if (state.songArtist && song.artist !== state.songArtist) return false;
+    if (!ignoreLetter && state.songLetter) {
+      var source = song[songSortKey()] || '';
+      if (songLetterOf(source) !== state.songLetter) return false;
+    }
+    return true;
+  }
+
+  function visibleSongs() {
+    return state.songs.filter(function (song) {
+      return songPassesFilters(song, false);
+    }).sort(compareSongs);
+  }
+
+  function uniqueArtists() {
+    var seen = {};
+    var names = [];
+    state.songs.forEach(function (song) {
+      var name = song.artist || '';
+      if (!name || seen[name]) return;
+      seen[name] = true;
+      names.push(name);
+    });
+    names.sort(function (a, b) {
+      return a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true });
+    });
+    return names;
+  }
+
+  function songCountLabel(shown) {
+    var total = state.songs.length;
+    if (shown === total) return total + ' songs';
+    return 'Showing ' + shown + ' of ' + total;
+  }
+
+  function songLetterButtons() {
+    var present = {};
+    state.songs.forEach(function (song) {
+      if (!songPassesFilters(song, true)) return;
+      present[songLetterOf(song[songSortKey()] || '')] = true;
     });
 
-    var capped = matches.slice(0, 200);
-    var rows = capped.map(function (song) {
-      return '<div class="admin-row">' +
-        '<div class="admin-row__main" style="display:flex;gap:8px;flex-wrap:wrap;flex:1">' +
-          '<input class="admin-input" style="max-width:280px" type="text" value="' + esc(song.title) +
-            '" data-change="song-edit" data-id="' + esc(song.id) + '" data-part="title">' +
-          '<input class="admin-input" style="max-width:220px" type="text" value="' + esc(song.artist) +
-            '" data-change="song-edit" data-id="' + esc(song.id) + '" data-part="artist">' +
-        '</div>' +
-        '<div class="admin-row__actions">' +
+    var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('');
+    return '<div class="song-lib__letters" role="group" aria-label="Jump to letter">' +
+      '<button type="button" class="song-lib__letter" data-action="song-letter" data-letter=""' +
+        (state.songLetter ? '' : ' aria-pressed="true"') + '>All</button>' +
+      letters.map(function (letter) {
+        var on = state.songLetter === letter;
+        var empty = !present[letter];
+        return '<button type="button" class="song-lib__letter" data-action="song-letter" data-letter="' +
+          letter + '"' + (on ? ' aria-pressed="true"' : '') +
+          (empty ? ' disabled' : '') + '>' + letter + '</button>';
+      }).join('') +
+    '</div>';
+  }
+
+  function songTableMarkup() {
+    var rows = visibleSongs();
+    if (!rows.length) {
+      return '<div class="admin-empty">No songs match these filters.</div>';
+    }
+
+    var titleSort = state.songSort.indexOf('title') === 0;
+    var artistSort = state.songSort.indexOf('artist') === 0;
+    var arrow = state.songSort.indexOf('desc') !== -1 ? ' ↓' : ' ↑';
+
+    var body = rows.map(function (song, i) {
+      var editing = state.songEditId === song.id;
+      var cells;
+      if (editing) {
+        cells =
+          '<td><input class="song-table__input" type="text" value="' + esc(song.title) +
+            '" data-change="song-edit" data-id="' + esc(song.id) + '" data-part="title" aria-label="Title"></td>' +
+          '<td><input class="song-table__input" type="text" value="' + esc(song.artist) +
+            '" data-change="song-edit" data-id="' + esc(song.id) + '" data-part="artist" aria-label="Artist"></td>';
+      } else {
+        cells =
+          '<td><button class="song-table__text" type="button" data-action="song-edit-start" data-id="' +
+            esc(song.id) + '">' + esc(song.title) + '</button></td>' +
+          '<td><button class="song-table__text song-table__text--muted" type="button" data-action="song-edit-start" data-id="' +
+            esc(song.id) + '">' + esc(song.artist) + '</button></td>';
+      }
+
+      return '<tr' + (editing ? ' class="is-editing"' : '') + '>' +
+        '<td class="song-table__n">' + (i + 1) + '</td>' +
+        cells +
+        '<td class="song-table__actions">' +
+          (editing
+            ? button('Done', 'song-edit-done', { style: 'btn--ghost' })
+            : '') +
           button('Delete', 'song-delete', { style: 'btn--danger', data: { id: song.id } }) +
-        '</div>' +
-      '</div>';
+        '</td>' +
+      '</tr>';
     }).join('');
+
+    return '<table class="song-table">' +
+      '<thead><tr>' +
+        '<th class="song-table__n">#</th>' +
+        '<th><button type="button" data-action="song-sort-col" data-col="title">Title' +
+          (titleSort ? arrow : '') + '</button></th>' +
+        '<th><button type="button" data-action="song-sort-col" data-col="artist">Artist' +
+          (artistSort ? arrow : '') + '</button></th>' +
+        '<th></th>' +
+      '</tr></thead>' +
+      '<tbody>' + body + '</tbody>' +
+    '</table>';
+  }
+
+  function refreshSongTable() {
+    var table = $('[data-song-table]');
+    var count = $('[data-song-count]');
+    var letters = $('[data-song-letters]');
+    var artistSelect = $('[data-change="song-artist"]');
+    var sortSelect = $('[data-change="song-sort"]');
+    var clear = $('[data-song-clear]');
+    if (table) table.innerHTML = songTableMarkup();
+    if (count) count.textContent = songCountLabel(visibleSongs().length);
+    if (letters) letters.innerHTML = songLetterButtons();
+    if (artistSelect) artistSelect.value = state.songArtist;
+    if (sortSelect) sortSelect.value = state.songSort;
+    if (clear) {
+      var filtersOn = !!(state.songQuery || state.songArtist || state.songLetter);
+      clear.hidden = !filtersOn;
+    }
+  }
+
+  function songsView() {
+    var artists = uniqueArtists();
+    var artistOptions = '<option value="">All artists (' + artists.length + ')</option>' +
+      artists.map(function (name) {
+        return '<option value="' + esc(name) + '"' +
+          (state.songArtist === name ? ' selected' : '') + '>' + esc(name) + '</option>';
+      }).join('');
+
+    var filtersOn = !!(state.songQuery || state.songArtist || state.songLetter);
 
     return '<div class="admin-card">' +
       '<div class="admin-head"><h2>Song library</h2>' +
-        '<span class="admin-hint" style="margin:0">' + state.songs.length + ' songs</span>' +
+        '<span class="admin-hint" style="margin:0" data-song-count>' +
+          songCountLabel(visibleSongs().length) + '</span>' +
       '</div>' +
-      '<p class="admin-hint">The pool every setlist draws from. Editing a song here ' +
-        'updates it everywhere it appears. Deleting one removes it from every setlist.</p>' +
-      '<input class="admin-input" type="search" placeholder="Search songs…" ' +
-        'value="' + esc(state.songQuery) + '" data-input="song-search">' +
-      '<div class="admin-actions">' +
-        '<input class="admin-input" style="max-width:260px" type="text" name="new_title" placeholder="Song title">' +
-        '<input class="admin-input" style="max-width:220px" type="text" name="new_artist" placeholder="Artist">' +
-        '<button class="btn btn--primary btn--xs" type="button" data-action="song-add">+ Add song</button>' +
+      '<p class="admin-hint">The pool every setlist draws from. Click a title or artist to edit — ' +
+        'it updates everywhere that song appears. Deleting one removes it from every setlist.</p>' +
+
+      '<div class="song-lib__tools">' +
+        '<input class="admin-input" type="search" placeholder="Search title or artist…" ' +
+          'value="' + esc(state.songQuery) + '" data-input="song-search" aria-label="Search songs">' +
+        '<select class="admin-input" data-change="song-artist" aria-label="Filter by artist">' +
+          artistOptions + '</select>' +
+        '<select class="admin-input" data-change="song-sort" aria-label="Sort songs">' +
+          '<option value="title-asc"' + (state.songSort === 'title-asc' ? ' selected' : '') + '>Title A–Z</option>' +
+          '<option value="title-desc"' + (state.songSort === 'title-desc' ? ' selected' : '') + '>Title Z–A</option>' +
+          '<option value="artist-asc"' + (state.songSort === 'artist-asc' ? ' selected' : '') + '>Artist A–Z</option>' +
+          '<option value="artist-desc"' + (state.songSort === 'artist-desc' ? ' selected' : '') + '>Artist Z–A</option>' +
+        '</select>' +
+        '<span data-song-clear' + (filtersOn ? '' : ' hidden') + '>' +
+          button('Clear filters', 'song-clear', { style: 'btn--ghost' }) +
+        '</span>' +
+      '</div>' +
+      '<div data-song-letters>' + songLetterButtons() + '</div>' +
+
+      '<div class="song-lib__add">' +
+        '<input class="admin-input" type="text" name="new_title" placeholder="Song title">' +
+        '<input class="admin-input" type="text" name="new_artist" placeholder="Artist">' +
+        '<button class="btn btn--primary btn--xs" type="button" data-action="song-add">+ Add</button>' +
       '</div>' +
     '</div>' +
 
-    '<div class="admin-card">' +
-      '<h2 class="h2">Import many at once</h2>' +
+    '<details class="admin-card">' +
+      '<summary class="song-lib__import">Import many at once</summary>' +
       '<p class="admin-hint">One per line, as <code>Title — Artist</code>. Duplicates are skipped.</p>' +
       '<label class="admin-field"><span>Songs</span>' +
         '<textarea name="bulk_songs" placeholder="Whiplash — aespa&#10;Magnetic — ILLIT"></textarea></label>' +
       '<div class="admin-actions">' +
         '<button class="btn btn--primary" type="button" data-action="songs-import">Import</button>' +
       '</div>' +
-    '</div>' +
+    '</details>' +
 
-    '<div class="admin-card">' +
-      (matches.length > capped.length
-        ? '<p class="admin-hint">Showing the first 200 of ' + matches.length +
-          ' matches — search to narrow it down.</p>'
-        : '') +
-      (rows || '<div class="admin-empty">No songs match.</div>') +
+    '<div class="admin-card admin-card--table">' +
+      '<div data-song-table>' + songTableMarkup() + '</div>' +
     '</div>';
   }
 
@@ -1041,8 +1204,45 @@
       if (!confirmed('Delete this song? It will be removed from every setlist.')) return;
       q(sb.from('songs').delete().eq('id', node.getAttribute('data-id')))
         .then(loadSongs)
-        .then(function () { say('Deleted'); draw(); })
+        .then(function () {
+          if (state.songEditId === node.getAttribute('data-id')) state.songEditId = '';
+          say('Deleted');
+          draw();
+        })
         .catch(fail);
+    },
+
+    'song-edit-start': function (node) {
+      state.songEditId = node.getAttribute('data-id');
+      refreshSongTable();
+      var first = $('[data-change="song-edit"][data-part="title"]');
+      if (first) first.focus();
+    },
+
+    'song-edit-done': function () {
+      state.songEditId = '';
+      refreshSongTable();
+    },
+
+    'song-sort-col': function (node) {
+      var col = node.getAttribute('data-col');
+      state.songSort = state.songSort === col + '-asc' ? col + '-desc' : col + '-asc';
+      var select = $('[data-change="song-sort"]');
+      if (select) select.value = state.songSort;
+      refreshSongTable();
+    },
+
+    'song-letter': function (node) {
+      var letter = node.getAttribute('data-letter') || '';
+      state.songLetter = state.songLetter === letter ? '' : letter;
+      refreshSongTable();
+    },
+
+    'song-clear': function () {
+      state.songQuery = '';
+      state.songArtist = '';
+      state.songLetter = '';
+      draw();
     },
 
     'songs-import': function () {
@@ -1194,8 +1394,23 @@
       var patch = {};
       patch[node.getAttribute('data-part')] = node.value.trim();
       q(sb.from('songs').update(patch).eq('id', id))
-        .then(function () { say('Saved ✓'); return loadSongs(); })
+        .then(function () {
+          state.songs.forEach(function (song) {
+            if (song.id === id) song[node.getAttribute('data-part')] = patch[node.getAttribute('data-part')];
+          });
+          say('Saved ✓');
+        })
         .catch(fail);
+    }
+
+    if (kind === 'song-sort') {
+      state.songSort = node.value;
+      refreshSongTable();
+    }
+
+    if (kind === 'song-artist') {
+      state.songArtist = node.value;
+      refreshSongTable();
     }
 
     if (kind === 'faq-edit') {
@@ -1256,10 +1471,7 @@
 
     if (node.getAttribute('data-input') === 'song-search') {
       state.songQuery = node.value;
-      var caret = node.selectionStart;
-      draw();
-      var next = $('[data-input="song-search"]');
-      if (next) { next.focus(); next.setSelectionRange(caret, caret); }
+      refreshSongTable();
     }
 
     if (node.getAttribute('data-input') === 'pick') {
