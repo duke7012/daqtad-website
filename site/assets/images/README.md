@@ -18,24 +18,22 @@ filename in `assets/js/data.js` to match.
 
 Two images per event:
 
-- `vol-8-poster.jpg` — the event poster, portrait 4:5 (e.g. 1080 × 1350)
-- `vol-8-cover.jpg` — a wide photo for the event cards, 16:9
+- `popup-poster.jpg` — the event poster, portrait 4:5 (e.g. 1080 × 1350)
+- `popup-cover.jpg` — a wide photo for the event cards, 16:9
 
-Same pattern for `vol-7`, `vol-6`, `vol-5`, `vol-4`.
+Same pattern for `rpd-ut2`, `rpd-ut1`, `rdd-6`, and so on.
 
 ## Gallery — `assets/images/gallery/`
 
 Numbered per event, starting at 01:
 
 ```
-vol-7-01.jpg  vol-7-02.jpg  ...  vol-7-08.jpg
-vol-6-01.jpg  ...  vol-6-06.jpg
-vol-5-01.jpg  ...  vol-5-06.jpg
-vol-4-01.jpg  ...  vol-4-06.jpg
+rpd-ut2-01.jpg  rpd-ut2-02.jpg  ...
+rpd-ut1-01.jpg  ...
 ```
 
-The number of photos per event is set in `assets/js/data.js` — look for
-`photos('vol-7', 8, ...)` and change the `8`.
+The number of photos per event is set in the admin (or in `assets/js/data.js`
+for the offline fallback).
 
 ## Before uploading
 

@@ -21,8 +21,8 @@ create unique index if not exists songs_title_artist_key
 create table if not exists public.events (
   id            uuid primary key default gen_random_uuid(),
   slug          text not null unique,          -- e.g. vol-9 (used in the URL)
-  name          text not null,                 -- "RPD Vol. 9"
-  subtitle      text not null default '',      -- "Neon Nights"
+  name          text not null,                 -- e.g. #RPD_UT2
+  subtitle      text not null default '',      -- "Season's Greetings"
   status        text not null default 'past'
                 check (status in ('upcoming', 'past')),
   starts_at     timestamptz,                   -- drives the countdown
@@ -37,7 +37,7 @@ create table if not exists public.events (
   cover_url     text not null default '',
   video         text not null default '',      -- YouTube link or ID
   requests_open boolean not null default false,
-  page          text not null default '',      -- blank => event.html?slug=...
+  page          text not null default '',      -- blank => /events/<slug>
   position      int not null default 0,        -- higher sorts first
   created_at    timestamptz not null default now()
 );
@@ -158,9 +158,20 @@ begin
 end $$;
 
 -- Song requests: visitors may add and read them, only admins may remove them.
+-- The insert rule mirrors what the page shows: a request is accepted only while
+-- its event has requests open, so closing them in the admin really does close
+-- them, even against the REST API directly.
 drop policy if exists "anyone may request" on public.song_requests;
 create policy "anyone may request" on public.song_requests
-  for insert to anon, authenticated with check (true);
+  for insert to anon, authenticated
+  with check (
+    exists (
+      select 1
+      from public.events e
+      where e.id = song_requests.event_id
+        and e.requests_open
+    )
+  );
 
 drop policy if exists "public read requests" on public.song_requests;
 create policy "public read requests" on public.song_requests

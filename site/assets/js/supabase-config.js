@@ -16,6 +16,6 @@
    ========================================================================== */
 
 window.SUPABASE_CONFIG = {
-  url: '',
-  key: ''
+  url: 'https://udoshvdfupwliujurjoz.supabase.co',
+  key: 'sb_publishable_dcg169eXSLW0Bt9N_B4iLQ_Q80fCM1d'
 };

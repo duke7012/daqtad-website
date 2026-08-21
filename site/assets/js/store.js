@@ -118,7 +118,7 @@ window.SITE_STORE = (function () {
       title: title,
       name: row.name,
       subtitle: row.subtitle || '',
-      page: row.page || 'event.html?slug=' + encodeURIComponent(row.slug),
+      page: row.page || '/events/' + encodeURIComponent(row.slug),
       startsAt: row.starts_at || '',
       dateLabel: formatDate(row.starts_at, row.timezone, {
         weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'

@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin
 Disallow: /admin.html
 
-Sitemap: https://daqtad.com/sitemap.xml
+Sitemap: https://daqtad.org/sitemap.xml

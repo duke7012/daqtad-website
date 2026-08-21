@@ -50,6 +50,22 @@
     });
   }
 
+  // Relative links are left alone, but anything carrying a scheme has to be
+  // http(s), so a "javascript:" address submitted with a request can never
+  // reach an href.
+  function safeHref(url) {
+    var clean = String(url == null ? '' : url).replace(/[\u0000-\u001F\u007F]/g, '').trim();
+    if (/^[a-z][a-z0-9+.-]*:/i.test(clean) && !/^https?:/i.test(clean)) return '';
+    return clean;
+  }
+
+  // Paths stored in the database are written relative to the site root.
+  function rooted(url) {
+    var clean = safeHref(url);
+    if (!clean || /^https?:\/\//i.test(clean) || clean.charAt(0) === '/') return clean;
+    return '/' + clean;
+  }
+
   function $(selector, root) { return (root || app).querySelector(selector); }
 
   function $$(selector, root) {
@@ -181,9 +197,27 @@
       .then(function (rows) { state.events = rows || []; });
   }
 
+  // PostgREST caps how many rows one request returns, so the library is read a
+  // page at a time until a page comes back empty. ensureSongs depends on this
+  // copy being complete. Titles repeat across artists, so id breaks the tie and
+  // keeps the paging order stable.
+  var SONG_PAGE = 1000;
+
+  function fetchSongPage(from, collected) {
+    return q(sb.from('songs').select('*')
+      .order('title', { ascending: true })
+      .order('id', { ascending: true })
+      .range(from, from + SONG_PAGE - 1))
+      .then(function (rows) {
+        var page = rows || [];
+        var all = collected.concat(page);
+        if (!page.length) return all;
+        return fetchSongPage(from + page.length, all);
+      });
+  }
+
   function loadSongs() {
-    return q(sb.from('songs').select('*').order('title', { ascending: true }))
-      .then(function (rows) { state.songs = rows || []; });
+    return fetchSongPage(0, []).then(function (rows) { state.songs = rows; });
   }
 
   function loadFaqs() {
@@ -253,36 +287,64 @@
     return (title + '|' + artist).toLowerCase();
   }
 
-  // Adds any songs that are not in the library yet, then returns every parsed
-  // line paired with its library row, in the original order.
-  function ensureSongs(parsed) {
+  function songLibrary() {
     var known = {};
     state.songs.forEach(function (song) {
       known[songKey(song.title, song.artist)] = song;
     });
+    return known;
+  }
 
-    var missing = [];
+  function isDuplicate(error) {
+    return !!error && (error.code === '23505' ||
+      /duplicate key|already exists/i.test(error.message || ''));
+  }
+
+  // Inserts the wanted songs the library does not have yet. A song that exists
+  // in the database but is missing from `state.songs` would trip the unique
+  // index, so one such failure is retried against a freshly read library.
+  function insertMissing(wanted, retry) {
+    var known = songLibrary();
+    var missing = wanted.filter(function (song) {
+      return !known[songKey(song.title, song.artist)];
+    });
+    if (!missing.length) return Promise.resolve(0);
+
+    return q(sb.from('songs').insert(missing).select())
+      .then(function (rows) {
+        (rows || []).forEach(function (row) { state.songs.push(row); });
+        return (rows || []).length;
+      })
+      .catch(function (error) {
+        if (!retry || !isDuplicate(error)) throw error;
+        return loadSongs().then(function () { return insertMissing(wanted, false); });
+      });
+  }
+
+  // Adds any songs that are not in the library yet, then returns every parsed
+  // line paired with its library row, in the original order.
+  function ensureSongs(parsed) {
+    var wanted = [];
     var seen = {};
     parsed.forEach(function (song) {
       var key = songKey(song.title, song.artist);
-      if (known[key] || seen[key]) return;
+      if (seen[key]) return;
       seen[key] = true;
-      missing.push({ title: song.title, artist: song.artist });
+      wanted.push({ title: song.title, artist: song.artist });
     });
 
-    var step = missing.length
-      ? q(sb.from('songs').insert(missing).select()).then(function (rows) {
-          (rows || []).forEach(function (row) {
-            known[songKey(row.title, row.artist)] = row;
-            state.songs.push(row);
-          });
-        })
-      : Promise.resolve();
-
-    return step.then(function () {
-      return parsed.map(function (song) {
-        return known[songKey(song.title, song.artist)];
-      }).filter(Boolean);
+    // Re-read the library first: deciding from a stale copy would re-insert
+    // songs that already exist.
+    return loadSongs().then(function () {
+      return insertMissing(wanted, true);
+    }).then(function (added) {
+      var known = songLibrary();
+      return {
+        added: added,
+        songs: parsed.map(function (song) {
+          return known[songKey(song.title, song.artist)];
+        }).filter(Boolean)
+      };
     });
   }
 
@@ -338,7 +400,7 @@
   function renderSession() {
     sessionBar.innerHTML = user
       ? '<span>' + esc(user.email) + '</span>' +
-        '<a class="btn btn--xs btn--ghost" href="index.html">View site ↗</a>' +
+        '<a class="btn btn--xs btn--ghost" href="/">View site ↗</a>' +
         button('Sign out', 'logout')
       : '';
   }
@@ -367,7 +429,7 @@
             month: 'short', day: 'numeric', year: 'numeric', timeZone: ev.timezone || 'UTC'
           })
         : 'no date';
-      var page = ev.page || 'event.html?slug=' + encodeURIComponent(ev.slug);
+      var page = safeHref(ev.page) || '/events/' + encodeURIComponent(ev.slug);
 
       return '<div class="admin-row">' +
         '<div class="admin-row__main">' +
@@ -414,7 +476,7 @@
     var photos = state.photos.length ? '<div class="admin-thumbs">' +
       state.photos.map(function (photo, i) {
         return '<div class="admin-thumb">' +
-          '<img src="' + esc(photo.url) + '" alt="">' +
+          '<img src="' + esc(rooted(photo.url)) + '" alt="">' +
           '<div class="admin-thumb__body">' +
             '<input type="text" value="' + esc(photo.alt) + '" placeholder="Describe the photo"' +
               ' data-change="photo-alt" data-id="' + esc(photo.id) + '">' +
@@ -435,10 +497,10 @@
       '</div>' +
 
       '<div class="admin-grid">' +
-        field('Name', 'name', ev.name || '', { placeholder: 'RPD Vol. 9' }) +
-        field('Subtitle', 'subtitle', ev.subtitle || '', { placeholder: 'Neon Nights' }) +
+        field('Name', 'name', ev.name || '', { placeholder: '#RDD9' }) +
+        field('Subtitle', 'subtitle', ev.subtitle || '', { placeholder: 'Bopsim Korean Festival' }) +
         field('URL slug', 'slug', ev.slug || '', {
-          hint: ' — lowercase, no spaces', placeholder: 'vol-9'
+          hint: ' — lowercase, no spaces', placeholder: 'rdd-9'
         }) +
         field('Status', 'status', ev.status || 'upcoming', {
           type: 'select', choices: ['upcoming', 'past']
@@ -461,7 +523,8 @@
           type: 'number', hint: ' — higher shows first'
         }) +
         field('Custom page', 'page', ev.page || '', {
-          hint: ' — leave blank to use the standard page'
+          hint: ' — leave blank to use /events/' + (ev.slug || 'the-slug'),
+          placeholder: '/events/popup'
         }) +
       '</div>' +
 
@@ -670,14 +733,20 @@
     }).join('');
 
     var rows = state.requests.length ? state.requests.map(function (req) {
+      // Visitors type these, so only an absolute http(s) address is turned into
+      // a link; anything else is shown as plain text.
+      var href = safeHref(req.link);
+      var link = /^https?:\/\//i.test(href)
+        ? ' · <a href="' + esc(href) + '" target="_blank" rel="noopener">link ↗</a>'
+        : (req.link ? ' · ' + esc(req.link) : '');
+
       return '<div class="admin-row">' +
         '<div class="admin-row__main">' +
           '<div class="admin-row__title">' + esc(req.song) +
             (req.artist ? ' <span class="admin-row__meta" style="display:inline">— ' +
               esc(req.artist) + '</span>' : '') + '</div>' +
-          '<div class="admin-row__meta">' + esc(req.name || 'anon') +
-            (req.part ? ' · ' + esc(req.part) : '') +
-            (req.link ? ' · <a href="' + esc(req.link) + '" target="_blank" rel="noopener">link ↗</a>' : '') +
+          '<div class="admin-row__meta">' +
+            (req.part ? esc(req.part) : 'any part') + link +
           '</div>' +
         '</div>' +
         '<div class="admin-row__actions">' +
@@ -786,6 +855,9 @@
           user = result.data.user;
           say('');
           start();
+        })
+        .catch(function (error) {
+          renderLogin((error && error.message) || 'Could not sign in — try again.');
         });
     },
 
@@ -793,6 +865,9 @@
       sb.auth.signOut().then(function () {
         user = null;
         renderLogin();
+      }).catch(function () {
+        user = null;
+        renderLogin('Signed out on this device, but the server could not be reached.');
       });
     },
 
@@ -973,13 +1048,13 @@
     'songs-import': function () {
       var parsed = parseSongLines(value('bulk_songs'));
       if (!parsed.length) return say('Nothing to import.', true);
-      var before = state.songs.length;
       say('Importing ' + parsed.length + ' lines…');
       ensureSongs(parsed)
-        .then(loadSongs)
-        .then(function () {
-          say('Added ' + (state.songs.length - before) + ' new songs ✓');
-          draw();
+        .then(function (result) {
+          return loadSongs().then(function () {
+            say('Added ' + result.added + ' new songs ✓');
+            draw();
+          });
         })
         .catch(fail);
     },
@@ -1070,7 +1145,7 @@
 
     clear
       .then(function () { return ensureSongs(parsed); })
-      .then(function (songs) { return addSongsToRound(songs); })
+      .then(function (result) { return addSongsToRound(result.songs); })
       .catch(fail);
   }
 
@@ -1254,6 +1329,11 @@
       } else {
         renderLogin();
       }
+    }).catch(function (error) {
+      // Without this the page would sit on "Loading…" forever whenever the
+      // project is unreachable.
+      renderLogin('Could not reach the database — ' +
+        ((error && error.message) || 'check your connection, then reload.'));
     });
   }
 

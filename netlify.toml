@@ -1,13 +1,130 @@
 [build]
   publish = "site"
 
+# ============================================================== routing ====
+# Addresses have no ".html" on them:
+#
+#   /                 index.html
+#   /events           events.html
+#   /events/popup     event-popup.html      (hand-written upcoming page)
+#   /events/<slug>    event.html            (every other event, from the database)
+#   /gallery          gallery.html
+#   /setlists         setlists.html
+#   /about            about.html
+#   /admin            admin.html
+#
+# Netlify already serves "about.html" at "/about", so the plain pages need no
+# rule here. Only the /events/ tree and the old addresses do.
+#
+# Rules are matched top to bottom, and a rule without force = true is only
+# consulted when no file matches the request. That is what keeps "/events"
+# on the list page while "/events/rdd-6" falls through to the generic one.
+
+# ---- old addresses -> new ones, so existing links and search results follow.
+# These need force because the .html files really do exist and would otherwise
+# be served as-is.
+
+[[redirects]]
+  from = "/event-vol-8.html"
+  to = "/events/popup"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/event-vol-8"
+  to = "/events/popup"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/events/vol-8"
+  to = "/events/popup"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/event-vol-7.html"
+  to = "/events/rpd-ut1"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/event-vol-7"
+  to = "/events/rpd-ut1"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/events/vol-7"
+  to = "/events/rpd-ut1"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/events/rdd-7"
+  to = "/events/rpd-ut1"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/events/rdd-8"
+  to = "/events/rpd-ut2"
+  status = 301
+  force = true
+
+# The generic page used to be reached as /event.html?slug=vol-6.
+[[redirects]]
+  from = "/event.html"
+  to = "/events/:slug"
+  status = 301
+  force = true
+  [redirects.query]
+    slug = ":slug"
+
+[[redirects]]
+  from = "/event.html"
+  to = "/events"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/event"
+  to = "/events"
+  status = 301
+  force = true
+
+# ---- the /events/ tree.
+
+[[redirects]]
+  from = "/events/popup"
+  to = "/event-popup.html"
+  status = 200
+
+# Any other event is rendered by the generic page, which reads the slug out of
+# the path. An unknown slug shows its own "event not found" message.
+[[redirects]]
+  from = "/events/*"
+  to = "/event.html"
+  status = 200
+
+# ---- one canonical hostname.
+
+[[redirects]]
+  from = "https://www.daqtad.org/*"
+  to = "https://daqtad.org/:splat"
+  status = 301
+  force = true
+
+# ============================================================== headers ====
+
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
 [[headers]]
-  for = "/*.html"
+  for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

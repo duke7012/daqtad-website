@@ -28,6 +28,67 @@
 
   function pad(n) { return n < 10 ? '0' + n : String(n); }
 
+  // Relative links are left alone, but anything carrying a scheme has to be
+  // http(s), so a stored "javascript:" address can never reach an href.
+  function safeHref(url) {
+    var clean = String(url == null ? '' : url).replace(/[\u0000-\u001F\u007F]/g, '').trim();
+    if (/^[a-z][a-z0-9+.-]*:/i.test(clean) && !/^https?:/i.test(clean)) return '';
+    return clean;
+  }
+
+  // Paths stored in the database are written relative to the site root, so
+  // spell that out. Without it they would break on a nested address such as
+  // /events/popup, where "assets/x.jpg" means "/events/assets/x.jpg".
+  function rooted(url) {
+    var clean = safeHref(url);
+    if (!clean || /^https?:\/\//i.test(clean) || clean.charAt(0) === '/') return clean;
+    return '/' + clean;
+  }
+
+  // Where an event card points: its custom page when one is set, otherwise
+  // /events/<slug>.
+  function eventHref(ev) {
+    var page = rooted(ev.page);
+    if (page) return page;
+    return ev.slug ? '/events/' + encodeURIComponent(ev.slug) : '/events';
+  }
+
+  function absolute(url) {
+    var path = rooted(url);
+    if (!path) return '';
+    return /^https?:\/\//i.test(path) ? path : location.origin + path;
+  }
+
+  // The slug of the event being viewed, from /events/<slug>.
+  function slugFromPath() {
+    var match = /^\/events\/([^/?#]+)/.exec(location.pathname);
+    if (!match) return '';
+    try {
+      return decodeURIComponent(match[1]);
+    } catch (err) {
+      return match[1];
+    }
+  }
+
+  // Accepts a bare ID or any of the usual YouTube link shapes, ignoring extra
+  // query parameters such as &list= and &t= that would otherwise be mistaken
+  // for the video ID.
+  var YOUTUBE_HOST = /^https?:\/\/(?:[\w-]+\.)*(?:youtube\.com|youtube-nocookie\.com|youtu\.be)\//i;
+
+  function youtubeId(value) {
+    var raw = String(value == null ? '' : value).trim();
+    if (!raw) return '';
+    if (!/^https?:\/\//i.test(raw)) return /^[\w-]+$/.test(raw) ? raw : '';
+    if (!YOUTUBE_HOST.test(raw)) return '';
+
+    var watch = /[?&]v=([\w-]+)/.exec(raw);
+    if (watch) return watch[1];
+
+    var path = /^https?:\/\/[^/?#]+\/(?:embed|shorts|live|v)\/([\w-]+)/i.exec(raw) ||
+      /^https?:\/\/(?:[\w-]+\.)*youtu\.be\/([\w-]+)/i.exec(raw);
+    return path ? path[1] : '';
+  }
+
   /* ------------------------------------------------------------- media --
      Renders an image that falls back to a labelled placeholder box when the
      file is missing, so the site never shows a broken-image icon.
@@ -36,8 +97,9 @@
   function media(src, alt, placeholder, modifier) {
     var cls = 'media' + (modifier ? ' ' + modifier : '');
     var attrs = 'class="' + cls + '" data-placeholder="' + esc(placeholder || 'Photo coming soon') + '"';
-    if (!src) return '<div ' + attrs + ' data-empty></div>';
-    return '<div ' + attrs + '><img src="' + esc(src) + '" alt="' + esc(alt || '') +
+    var url = rooted(src);
+    if (!url) return '<div ' + attrs + ' data-empty></div>';
+    return '<div ' + attrs + '><img src="' + esc(url) + '" alt="' + esc(alt || '') +
       '" loading="lazy" decoding="async"></div>';
   }
 
@@ -277,9 +339,7 @@
         actions = '<button class="setlist-toggle" type="button" data-toggle>' +
           (truncated ? 'Show all ' + round.songs.length + ' songs ↓' : 'Show fewer ↑') +
           '</button>' +
-          (ev.page
-            ? '<a class="link-strong" href="' + esc(ev.page) + '">Event page →</a>'
-            : '');
+          '<a class="link-strong" href="' + esc(eventHref(ev)) + '">Event page →</a>';
       }
 
       body.innerHTML =
@@ -323,7 +383,7 @@
     if (!ev) { host.remove(); return; }
 
     host.innerHTML =
-      '<a class="next-card" href="' + esc(ev.page || 'events.html') + '">' +
+      '<a class="next-card" href="' + esc(eventHref(ev)) + '">' +
         '<div class="next-card__body">' +
           '<span class="eyebrow">★ Up next</span>' +
           '<div class="next-card__title">' + esc(ev.title) + '</div>' +
@@ -341,7 +401,7 @@
 
   function renderRecentEvents(host) {
     host.innerHTML = D.past().slice(0, 3).map(function (ev) {
-      return '<a class="event-card" href="' + esc(ev.page || 'gallery.html') + '">' +
+      return '<a class="event-card" href="' + esc(eventHref(ev)) + '">' +
         '<div class="event-card__media">' +
           media(ev.cover, ev.title + ' cover photo', ev.name + ' cover photo') +
         '</div>' +
@@ -358,7 +418,7 @@
   function renderEventList(host) {
     host.innerHTML = D.events.map(function (ev) {
       var upcoming = ev.status === 'upcoming';
-      var href = ev.page || 'gallery.html';
+      var href = eventHref(ev);
       var badge = upcoming
         ? '<span class="tag tag--live">' + esc(ev.badge || 'Upcoming') + '</span>'
         : '<span class="tag tag--past">' + esc(ev.dateLabel) + '</span>';
@@ -448,13 +508,15 @@
     if (ev.stats) facts.push('💃 ' + esc(ev.stats));
 
     var social = '';
-    if (D.social.instagram) {
-      social += '<a class="btn btn--outline btn--sm btn--icon" href="' + esc(D.social.instagram) +
+    var instagram = safeHref(D.social.instagram);
+    var facebook = safeHref(D.social.facebook);
+    if (instagram) {
+      social += '<a class="btn btn--outline btn--sm btn--icon" href="' + esc(instagram) +
         '" target="_blank" rel="noopener">' +
         '<span class="icon icon--instagram" aria-hidden="true"></span>Instagram</a>';
     }
-    if (D.social.facebook) {
-      social += '<a class="btn btn--outline btn--sm btn--icon" href="' + esc(D.social.facebook) +
+    if (facebook) {
+      social += '<a class="btn btn--outline btn--sm btn--icon" href="' + esc(facebook) +
         '" target="_blank" rel="noopener">' +
         '<span class="icon icon--facebook" aria-hidden="true"></span>Photo album</a>';
     }
@@ -478,12 +540,38 @@
       (social ? '<div class="btn-row">' + social + '</div>' : '');
 
     document.title = ev.title + " · DA'QTAD";
+    describeEvent(ev);
+  }
+
+  // The generic page answers on every /events/<slug> address, so the tags that
+  // say which page this is have to be filled in per event.
+  function describeEvent(ev) {
+    var url = absolute(eventHref(ev));
+
+    var canonical = $('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', url);
+
+    var tags = {
+      'og:url': url,
+      'og:title': ev.title + " · DA'QTAD",
+      'og:image': absolute(ev.poster || ev.cover)
+    };
+    Object.keys(tags).forEach(function (property) {
+      if (!tags[property]) return;
+      var node = $('meta[property="' + property + '"]');
+      if (node) node.setAttribute('content', tags[property]);
+    });
   }
 
   // Drops the sections of the generic page that this event has nothing for.
   function trimEventSections(ev) {
     var filled = {
-      video: !!ev.video,
+      video: !!youtubeId(ev.video),
       photos: !!(ev.photos && ev.photos.length),
       setlist: !!(ev.rounds && ev.rounds.length),
       requests: !!ev.requestsOpen
@@ -508,10 +596,8 @@
 
     var video = $('[data-render="video"]');
     if (video) {
-      if (ev.video) {
-        var id = ev.video.indexOf('http') === 0
-          ? (ev.video.split(/[/=]/).pop() || '')
-          : ev.video;
+      var id = youtubeId(ev.video);
+      if (id) {
         video.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + esc(id) +
           '" title="' + esc(ev.title) + ' recap video" allowfullscreen' +
           ' allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"></iframe>';
@@ -590,7 +676,6 @@
         '<div class="request__top">' +
           '<div><span class="request__song">' + esc(r.song) + '</span> ' +
           '<span class="request__artist">— ' + esc(r.artist) + '</span></div>' +
-          '<span class="request__by">' + esc(r.name) + '</span>' +
         '</div>' +
         '<div class="request__meta"><span>⏱ ' + esc(r.time) + '</span>' + link + '</div>' +
       '</div>';
@@ -625,7 +710,7 @@
       event.preventDefault();
       var data = new FormData(form);
       var entry = {
-        name: (data.get('name') || '').trim() || 'anon',
+        name: 'anon',
         song: (data.get('song') || '').trim(),
         artist: (data.get('artist') || '').trim() || '—',
         time: (data.get('time') || '').trim() || 'any part',
@@ -711,11 +796,11 @@
     var main = $('#main');
     if (!main) return;
     main.innerHTML = '<section class="section section--narrow">' +
-      '<a class="link-strong" href="events.html">← All events</a>' +
+      '<a class="link-strong" href="/events">← All events</a>' +
       '<h1 class="event-hero__title">Event not found</h1>' +
       '<p class="lede">There is no event called “' + esc(slug) + '”. ' +
       'It may have been renamed or removed.</p>' +
-      '<div class="btn-row"><a class="btn btn--primary" href="events.html">See all events</a></div>' +
+      '<div class="btn-row"><a class="btn btn--primary" href="/events">See all events</a></div>' +
       '</section>';
   }
 
@@ -739,9 +824,10 @@
     }
 
     if (page === 'event') {
-      // Hand-written pages name their event in the body tag; the generic
-      // event.html takes it from ?slug=... instead.
-      var slug = document.body.getAttribute('data-event') ||
+      // Hand-written pages name their event in the body tag; the generic page
+      // takes it from /events/<slug>. The ?slug= form is still read so links
+      // shared before the addresses changed keep working.
+      var slug = document.body.getAttribute('data-event') || slugFromPath() ||
         new URLSearchParams(location.search).get('slug') || '';
       var ev = D.get(slug);
       if (ev) renderEventPage(ev);
