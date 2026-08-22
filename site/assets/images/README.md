@@ -10,7 +10,8 @@ filename in `assets/js/data.js` to match.
 
 | File | Used on | Suggested size |
 | --- | --- | --- |
-| `hero.gif` (or `.jpg`) | Home page hero background | 1600 × 900, landscape |
+| `homepage_background.mp4` | Home page hero background video (muted, loops) | 1600 × 900 |
+| `hero.jpg` | Hero still (poster + reduced-motion fallback) | 1600 × 900, landscape |
 | `about-group.jpg` | About page group photo | 800 × 800, square |
 | `og-cover.jpg` | Link preview when the site is shared | 1200 × 630 |
 

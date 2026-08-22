@@ -43,14 +43,30 @@
       <div class="hero">
         <div class="hero-media">
           <div class="media media--dark media--quiet" data-placeholder="DA'QTAD random play dance">
-            <img src="/assets/images/hero.gif" alt="Dancers at a DA'QTAD K-pop random play dance event" decoding="async">
+            <video
+              class="hero-video"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              poster="/assets/images/hero.jpg"
+              aria-hidden="true"
+            >
+              <source src="/assets/images/homepage_background.mp4" type="video/mp4">
+            </video>
+            <img
+              class="hero-poster"
+              src="/assets/images/hero.jpg"
+              alt="Collage of DA'QTAD community gatherings and K-pop fan events"
+              decoding="async"
+            >
           </div>
         </div>
         <div class="hero-scrim"></div>
         <div class="hero-body">
           <div class="btn-row">
             <span class="tag tag--outline-violet">K-pop Random Play Dance</span>
-            <span class="tag tag--outline-rose">Bến Tre → Salt Lake City</span>
           </div>
           <h1 class="hero-title">DA'QTAD<br><span class="accent-violet">Kfans</span> <span class="accent-rose">District</span></h1>
           <p class="hero-text">We throw K-pop random play dance events — and this is our little archive. Relive past RPDs, browse photos and setlists, and request songs for the next one. 💜</p>
