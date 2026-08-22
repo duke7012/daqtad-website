@@ -35,12 +35,15 @@ create table if not exists public.events (
   stats         text not null default '',      -- "~60 dancers · 3 hours"
   poster_url    text not null default '',
   cover_url     text not null default '',
-  video         text not null default '',      -- YouTube link or ID
+  drive_url     text not null default '',      -- optional per-event Google Drive album
+  video         text not null default '',      -- YouTube links/IDs, one per line
   requests_open boolean not null default false,
   page          text not null default '',      -- blank => /events/<slug>
   position      int not null default 0,        -- higher sorts first
   created_at    timestamptz not null default now()
 );
+
+alter table public.events add column if not exists drive_url text not null default '';
 
 create table if not exists public.rounds (
   id         uuid primary key default gen_random_uuid(),

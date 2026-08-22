@@ -3679,10 +3679,9 @@ insert into public.faqs (question, answer, position) values
   ('Do I need to know the full choreography?', 'Nope! Most people only know the chorus — that is totally fine. Dance what you know, vibe for the rest.', 1),
   ('Is it free? Do I need to register?', 'Always free, no registration. Just show up. Follow @daqtad on Instagram so you know when and where.', 2),
   ('How do song requests work?', 'Before each event we open requests on the event page. The most-requested songs make the playlist. One request per song, but you can request as many songs as you like.', 3),
-  ('Can I get the photos from an event?', 'Yes! Every event page has an album link, and everything lives in our shared Google Drive — free to download and post (tag us 💜).', 4);
+  ('Can I get the photos from an event?', 'Yes! Photos live on that event''s page and in the gallery. Some events also have their own Google Drive album — free to download and post (tag us 💜).', 4);
 
 update public.site_settings set
   instagram = 'https://instagram.com/daqtad',
-  facebook = 'https://fb.com/daqtad',
-  drive = 'https://drive.google.com/drive/folders/1ESfNKgpqy1SydvTTofl5t4PIRBkzRZVd'
+  facebook = 'https://fb.com/daqtad'
 where id = true;

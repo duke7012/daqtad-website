@@ -9,3 +9,14 @@
 
 # Logs
 *.log
+
+# Dependencies and build
+node_modules/
+build/
+dist/
+.react-router/
+.cache/
+.netlify/
+
+# Local env overrides (committed .env is the public publishable key)
+.env.local

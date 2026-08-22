@@ -10,8 +10,9 @@ The website for DA'QTAD, a K-pop random play dance crew in Salt Lake City.
 | Hosting    | Netlify, deploying from `main` on <https://github.com/duke7012/daqtad-website> |
 | Content    | a free Supabase project                                              |
 
-Plain HTML, CSS and JavaScript. No build step, no npm, no framework — the
-files in `site/` are exactly what gets served.
+React Router 7 (Framework mode) with TypeScript. Pages render on the server.
+All database reads and writes live in `app/lib/*.server.ts` — they never ship
+to the browser.
 
 ## Addresses
 
@@ -29,57 +30,52 @@ There is no `.html` anywhere in the address bar.
 ```
 
 Adding an event in the admin gives it `/events/<its-slug>` straight away — no
-new file and no deploy. `netlify.toml` maps addresses to files, and the old
-`.html` addresses redirect to the new ones, so links shared before the change
-still work.
+new file and no deploy. Old `.html` addresses still redirect.
 
 ## Files
 
 ```
-site/                     ← this folder is the website
-  index.html              /
-  events.html             /events
-  event.html              /events/<slug> — the generic event page
-  event-popup.html        /events/popup
-  gallery.html            /gallery
-  setlists.html           /setlists
-  about.html              /about
+app/
+  root.tsx                html shell, fonts, styles
+  routes.ts               URL map
+  routes/                 one module per page (loaders / actions + UI)
+  lib/*.server.ts         Supabase and fallback content (server only)
+  lib/urls.ts             shared link helpers
+  components/             header, countdown, lightbox, setlists, …
+  admin/                  admin tab UI (no database calls)
+  styles/                 the original public + admin CSS
+public/
+  assets/images/          images you add by hand (optional — see admin)
   world-map.html          the map embedded by the About page
-  admin.html              /admin  ← EDIT THE SITE HERE
-  404.html                shown for unknown addresses
-  assets/
-    css/styles.css        all styling
-    css/admin.css         styling for the admin page only
-    js/supabase-config.js ← YOUR DATABASE KEYS GO HERE
-    js/store.js           loads content from the database
-    js/data.js            sample content, used only if the database is down
-    js/site.js            behaviour (countdown, tabs, lightbox, request form)
-    js/admin.js           the admin interface
-    images/               images you add by hand (optional — see admin)
-netlify.toml              addresses, redirects and headers
-serve.py                  local preview, using those same rules
+  robots.txt
+  sitemap.xml
+netlify.toml              build, redirects and headers
 supabase/
   schema.sql              tables, security rules, storage bucket
   seed.sql                the starter content, ready to import
+.env                      SUPABASE_URL and SUPABASE_ANON_KEY (publishable)
 prototype/                the original design-tool files, kept for reference
 ```
 
 ## Preview it locally
 
 ```bash
-python3 serve.py
+npm install
+npm run dev
 ```
 
-Then open <http://localhost:8000>. It reads `netlify.toml`, so the clean
-addresses and redirects behave exactly as they do live. (`python3 -m
-http.server` from inside `site/` still works for a quick look, but
-`/events/rdd-6` won't resolve, because that address is a rewrite rather than a
-file.)
+Then open <http://localhost:5173>. Clean addresses, song requests and the
+admin page all go through the same server loaders as production.
+
+```bash
+npm run build      # production build → build/client + build/server
+npm run typecheck  # generate route types and run tsc
+```
 
 ## Set up the database (about 10 minutes, once)
 
 Until you do this the site still works — it just shows the sample content in
-`data.js`, and the admin page explains what's missing.
+`app/lib/fallback.server.ts`, and the admin page explains what's missing.
 
 **1. Create the project.** Sign up at <https://supabase.com>, create a new
 project, and pick a region near you. Save the database password somewhere safe.
@@ -106,59 +102,33 @@ select id, email from auth.users where email = 'you@example.com';
 
 **5. Connect the site.** Go to **Project Settings → API keys**. Copy the
 Project URL and the publishable key (it starts with `sb_publishable_`; on older
-projects it's called the `anon` key). Paste both into
-`site/assets/js/supabase-config.js`:
+projects it's called the `anon` key). Put both in `.env`:
 
-```js
-window.SUPABASE_CONFIG = {
-  url: 'https://yourproject.supabase.co',
-  key: 'sb_publishable_xxxxxxxxxxxxx'
-};
+```
+SUPABASE_URL=https://yourproject.supabase.co
+SUPABASE_ANON_KEY=sb_publishable_xxxxxxxxxxxxx
 ```
 
-Push, wait for Netlify to deploy, then open <https://daqtad.org/admin> and sign
-in.
+The same two values are also listed under `[build.environment]` in
+`netlify.toml` so a push to `main` keeps working. On Netlify you can override
+them in **Site settings → Environment variables** if you ever rotate the key.
 
-> These two values are public on purpose — they end up in the page source of
-> every visitor. They are safe because the database only allows reading, apart
-> from song requests, which are accepted only while that event has requests
-> open; every other write is checked against the `admins` table. Never put the
-> **secret** key (`sb_secret_…` / `service_role`) in this file.
-
-### If you imported the seed before the addresses changed
-
-Older rows store paths like `assets/images/…` and `event-vol-8.html`. The site
-copes with both — it adds the leading slash, and the old page addresses
-redirect — but one run of this in the SQL Editor tidies them up for good:
-
-```sql
-update public.events
-   set page = '/events/' || slug
- where page in ('event-vol-8.html', 'event-vol-7.html');
-
-update public.events
-   set poster_url = '/' || poster_url
- where poster_url <> '' and poster_url not like '/%' and poster_url not like 'http%';
-
-update public.events
-   set cover_url = '/' || cover_url
- where cover_url <> '' and cover_url not like '/%' and cover_url not like 'http%';
-
-update public.photos
-   set url = '/' || url
- where url <> '' and url not like '/%' and url not like 'http%';
-```
+> These two values are public on purpose — the browser never sees them now,
+> but they are still a publishable key. They are safe because the database
+> only allows reading, apart from song requests, which are accepted only while
+> that event has requests open; every other write is checked against the
+> `admins` table. Never put the **secret** key (`sb_secret_…` / `service_role`)
+> in this file.
 
 ## Deploying
 
 Netlify is connected to the GitHub repo, so **pushing to `main` deploys the
-site**. There is nothing to build:
+site**. The build is set in `netlify.toml`:
 
-- Build command: *empty*
-- Publish directory: `site`
+- Build command: `react-router build`
+- Publish directory: `build/client`
 
-`netlify.toml` already sets this, along with the addresses and the caching and
-security headers. A pull request gets its own preview URL.
+A pull request gets its own preview URL.
 
 ## The domain
 
@@ -221,7 +191,7 @@ They go to Supabase Storage and show up on the gallery page and that event's
 page. Add a short description to each one for screen readers.
 
 **FAQ and Settings** — the About page questions, and the Instagram / Facebook
-/ Google Drive links used across the site.
+links used across the site. A Google Drive album is optional on each event.
 
 **Requests** — everything visitors submitted through an event page, newest
 first, with a delete button for spam.
@@ -231,18 +201,15 @@ first, with a delete button for spam.
 Almost never needed — the admin covers it. But if an event deserves a
 one-off layout like the Pop-Up has:
 
-1. Copy `site/event-popup.html` to `site/event-rdd-9.html` and edit it. Set
-   `data-event="rdd-9"` on the `<body>` tag so it loads that event's content.
-2. In `netlify.toml`, copy the `/events/popup` pair of rules and change the
-   slug.
-3. In the admin, set that event's **Custom page** to `/events/rdd-9`.
-4. Add the address to `site/sitemap.xml`.
+1. Add a route module under `app/routes/` (copy `events-popup.tsx`).
+2. Register the path in `app/routes.ts` **above** `events/:slug`.
+3. In the admin, set that event's **Custom page** to that address.
+4. Add the address to `public/sitemap.xml`.
 
 ## Notes
 
-- **If the database is ever unreachable** the site falls back to the last copy
-  it loaded in that browser, and failing that to the sample content in
-  `data.js`. Visitors never see an empty page.
+- **If the database is ever unreachable** the site falls back to the sample
+  content in `app/lib/fallback.server.ts`. Visitors never see an empty page.
 - **Free Supabase projects pause after a week with no traffic.** A live site
   that people visit counts as traffic. If it does pause, resume it from the
   dashboard.
@@ -251,12 +218,12 @@ one-off layout like the Pop-Up has:
 - The countdown uses the event's start time and timezone, so it's correct for
   visitors anywhere in the world.
 - Images you upload in the admin are served from Supabase. The hand-added
-  files in `site/assets/images/` still work; anything missing shows a labelled
+  files in `public/assets/images/` still work; anything missing shows a labelled
   placeholder rather than a broken image.
 - Paths stored in the database should start with `/` (for example
   `/assets/images/events/popup-poster.jpg`). The site adds the slash if it is
   missing, so an older row still resolves.
 - The world map on the About page pulls country shapes from a CDN at page
   load. If that ever fails, it falls back to a plain text list of locations.
-- Page headings and copy live in the HTML, so pages still have real text for
-  search engines and link previews; only the lists are rendered by JavaScript.
+- Page headings and copy live in the route modules, so the first HTML
+  response already has real text for search engines and link previews.
