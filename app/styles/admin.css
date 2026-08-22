@@ -29,14 +29,25 @@
 }
 
 .admin-bar__brand {
-  font-family: var(--display);
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--ink);
   text-decoration: none;
-  font-size: 18px;
+  line-height: 0;
 }
 
-.admin-bar__brand span { color: var(--violet); }
+.admin-bar__brand-label {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--violet);
+  line-height: 1;
+}
+
+.brand-logo--admin {
+  height: 28px;
+}
 
 .admin-bar__right {
   display: flex;

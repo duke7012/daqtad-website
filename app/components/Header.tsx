@@ -1,5 +1,6 @@
 import { NavLink } from "react-router";
 import { useState } from "react";
+import { BrandLogo } from "~/components/BrandLogo";
 
 const links = [
   { to: "/", label: "Home", end: true },
@@ -14,8 +15,8 @@ export function Header({ compact = false }: { compact?: boolean }) {
 
   return (
     <header className="site-header">
-      <a className="brand" href="/">
-        DA'QTAD<span>.</span>
+      <a className="brand" href="/" aria-label="DA'QTAD home">
+        <BrandLogo />
       </a>
       {!compact && (
         <button

@@ -8,6 +8,7 @@ import { RequestsTab } from "~/admin/RequestsTab";
 import { RoundEditor } from "~/admin/RoundEditor";
 import { SettingsTab } from "~/admin/SettingsTab";
 import { SongsTab } from "~/admin/SongsTab";
+import { BrandLogo } from "~/components/BrandLogo";
 import {
   addFaq,
   addPhotos,
@@ -377,8 +378,9 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
       <div className="admin-body">
         <div className="admin-shell">
           <div className="admin-bar">
-            <a className="admin-bar__brand" href="/">
-              DA'QTAD<span>. admin</span>
+            <a className="admin-bar__brand" href="/" aria-label="DA'QTAD admin">
+              <BrandLogo className="brand-logo brand-logo--admin" />
+              <span className="admin-bar__brand-label">admin</span>
             </a>
           </div>
           <div className="admin-banner admin-banner--warn">
@@ -409,8 +411,9 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
       <div className="admin-body">
         <div className="admin-shell">
           <div className="admin-bar">
-            <a className="admin-bar__brand" href="/">
-              DA'QTAD<span>. admin</span>
+            <a className="admin-bar__brand" href="/" aria-label="DA'QTAD admin">
+              <BrandLogo className="brand-logo brand-logo--admin" />
+              <span className="admin-bar__brand-label">admin</span>
             </a>
           </div>
           {loaderData.status === "not-admin" ? (
@@ -484,8 +487,9 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
     <div className="admin-body">
       <div className="admin-shell">
         <div className="admin-bar">
-          <a className="admin-bar__brand" href="/">
-            DA'QTAD<span>. admin</span>
+          <a className="admin-bar__brand" href="/" aria-label="DA'QTAD admin">
+            <BrandLogo className="brand-logo brand-logo--admin" />
+            <span className="admin-bar__brand-label">admin</span>
           </a>
           <div className="admin-bar__right">
             <span>{email}</span>

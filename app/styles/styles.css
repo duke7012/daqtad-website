@@ -176,14 +176,18 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
 }
 
 .brand {
-  font-family: var(--display);
-  font-weight: 900;
-  font-size: 20px;
-  color: var(--ink);
-  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
 }
-.brand:hover { color: var(--ink); }
-.brand span { color: var(--rose); }
+.brand:hover { opacity: 0.88; }
+
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 36px;
+  transform: translate(6px, 3px);
+}
 
 .nav {
   display: flex;
@@ -1143,6 +1147,8 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
   :root { --gutter: 20px; }
 
   .site-header { padding: 16px var(--gutter); }
+
+  .brand-logo { height: 30px; }
 
   .nav-toggle { display: block; order: 2; }
 

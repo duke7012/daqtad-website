@@ -56,7 +56,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <div className="hero-scrim"></div>
           <div className="hero-body">
             <div className="btn-row">
-              <span className="tag tag--outline-violet">K-pop Random Play Dance</span>
+              <span className="tag tag--outline-violet">We host K-pop Community Events</span>
             </div>
             <h1 className="hero-title">
               DA'QTAD
