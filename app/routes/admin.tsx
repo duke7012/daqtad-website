@@ -365,12 +365,12 @@ export async function action({ request }: Route.ActionArgs) {
       }
       case "upload-photos": {
         const eventId = str(form, "event_id");
-        const files = form.getAll("files").filter((item): item is File => item instanceof File && item.size > 0);
-        const urls: string[] = [];
-        for (const file of files) urls.push(await uploadFile(supabase, file, "gallery"));
+        const file = form.get("file");
+        if (!(file instanceof File) || !file.size) return ok("Choose a photo.", { failed: true });
+        const url = await uploadFile(supabase, file, "gallery");
         const detail = await loadEventDetail(supabase, eventId);
-        await addPhotos(supabase, eventId, urls, detail.photos);
-        return ok(`Uploaded ${urls.length} photos ✓`);
+        await addPhotos(supabase, eventId, [url], detail.photos);
+        return ok("Uploaded ✓");
       }
       default:
         return ok("Unknown action.", { failed: true });

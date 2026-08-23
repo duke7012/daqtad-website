@@ -274,7 +274,18 @@ export async function deletePhoto(sb: SupabaseClient, id: string) {
   await q(sb.from("photos").delete().eq("id", id));
 }
 
+/** Netlify functions reject bodies above ~4.5 MB (binary). */
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+export function assertUploadSize(file: File) {
+  if (file.size > MAX_UPLOAD_BYTES) {
+    const mb = (file.size / (1024 * 1024)).toFixed(1);
+    throw new Error(`"${file.name}" is ${mb} MB — max 4 MB per photo. Try exporting a smaller JPEG.`);
+  }
+}
+
 export async function uploadFile(sb: SupabaseClient, file: File, folder: string): Promise<string> {
+  assertUploadSize(file);
   const clean = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
   const path = `${folder}/${Date.now()}-${clean}`;
   await q(sb.storage.from("media").upload(path, file, { cacheControl: "3600" }));

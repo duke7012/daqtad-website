@@ -1,10 +1,90 @@
-import { useEffect } from "react";
-import { Form, useFetcher } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Form, useFetcher, useRevalidator } from "react-router";
 import { PageSectionsEditor } from "~/admin/PageSectionsEditor";
 import { Checkbox, Field } from "~/admin/fields";
 import { TIMEZONES, fromIso } from "~/lib/admin-utils";
 import { rooted } from "~/lib/urls";
 import type { AdminEvent, AdminPhoto, AdminRound } from "~/types";
+
+function PhotoUploadField({ eventId }: { eventId: string }) {
+  const fetcher = useFetcher<{ message?: string; failed?: boolean }>();
+  const revalidator = useRevalidator();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const filesRef = useRef<File[]>([]);
+  const indexRef = useRef(0);
+  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+  const [status, setStatus] = useState("");
+
+  function submitCurrent() {
+    const file = filesRef.current[indexRef.current];
+    if (!file) return;
+    setProgress({ current: indexRef.current + 1, total: filesRef.current.length });
+    const formData = new FormData();
+    formData.set("intent", "upload-photos");
+    formData.set("event_id", eventId);
+    formData.set("file", file);
+    fetcher.submit(formData, { method: "post", encType: "multipart/form-data" });
+  }
+
+  useEffect(() => {
+    if (!progress || fetcher.state !== "idle" || !fetcher.data) return;
+
+    if (fetcher.data.failed) {
+      setStatus(fetcher.data.message || "Upload failed.");
+      setProgress(null);
+      filesRef.current = [];
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+
+    indexRef.current += 1;
+    if (indexRef.current < filesRef.current.length) {
+      submitCurrent();
+      return;
+    }
+
+    const count = filesRef.current.length;
+    setStatus(`Uploaded ${count} photo${count === 1 ? "" : "s"} ✓`);
+    setProgress(null);
+    filesRef.current = [];
+    if (inputRef.current) inputRef.current.value = "";
+    revalidator.revalidate();
+  }, [progress, fetcher.state, fetcher.data, eventId, revalidator]);
+
+  const busy = progress !== null || fetcher.state !== "idle";
+
+  return (
+    <div className="admin-actions">
+      <label className="admin-field">
+        <span>
+          Upload photos
+          <small> — one at a time, max 4 MB each</small>
+        </span>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          disabled={busy}
+          onChange={(event) => {
+            const list = Array.from(event.currentTarget.files || []);
+            if (!list.length || busy) return;
+            filesRef.current = list;
+            indexRef.current = 0;
+            setStatus("");
+            submitCurrent();
+          }}
+        />
+      </label>
+      {progress ? (
+        <p className="admin-hint">
+          Uploading {progress.current} of {progress.total}…
+        </p>
+      ) : null}
+      {!progress && status ? <p className="admin-hint">{status}</p> : null}
+    </div>
+  );
+}
 
 function UploadField({
   label,
@@ -54,8 +134,6 @@ export function EventEditor({
   const zone = event.timezone || "America/Denver";
   const start = fromIso(event.starts_at, zone);
   const end = fromIso(event.ends_at, zone);
-  const photoFetcher = useFetcher();
-
   return (
     <>
       <Form method="post" className="admin-card">
@@ -368,22 +446,7 @@ export function EventEditor({
                 ))}
               </div>
             )}
-            <photoFetcher.Form method="post" encType="multipart/form-data" className="admin-actions">
-              <input type="hidden" name="intent" value="upload-photos" />
-              <input type="hidden" name="event_id" value={event.id} />
-              <label className="admin-field">
-                <span>Upload photos</span>
-                <input
-                  type="file"
-                  name="files"
-                  accept="image/*"
-                  multiple
-                  onChange={(event) => {
-                    if (event.currentTarget.files?.length) event.currentTarget.form?.requestSubmit();
-                  }}
-                />
-              </label>
-            </photoFetcher.Form>
+            <PhotoUploadField eventId={event.id!} />
           </div>
         </>
       ) : (
