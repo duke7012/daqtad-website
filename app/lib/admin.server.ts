@@ -16,7 +16,11 @@ export { TIMEZONES, fromIso, parseSongLines, toIso } from "~/lib/admin-utils";
 
 async function q<T>(builder: PromiseLike<{ data: unknown; error: { message: string; code?: string } | null }>) {
   const result = await builder;
-  if (result.error) throw result.error;
+  if (result.error) {
+    const err = new Error(result.error.message || "Database request failed");
+    (err as Error & { code?: string }).code = result.error.code;
+    throw err;
+  }
   return result.data as T;
 }
 

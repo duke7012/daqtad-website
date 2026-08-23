@@ -41,6 +41,7 @@ interface DbEvent {
   stats?: string;
   poster_url?: string;
   cover_url?: string;
+  banner_url?: string;
   drive_url?: string;
   requests_open?: boolean;
   video?: string;
@@ -142,6 +143,7 @@ function mapEvent(row: DbEvent): EventItem {
     poster: row.poster_url || "",
     posterAlt: `${title} event poster`,
     cover: row.cover_url || "",
+    banner: row.banner_url || (row.status === "upcoming" ? "/assets/images/events/bopsim2026-bg.jpg" : ""),
     drive: row.drive_url || "",
     requestsOpen: !!row.requests_open,
     video: row.video || "",

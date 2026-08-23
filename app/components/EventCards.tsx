@@ -1,11 +1,19 @@
 import { Countdown } from "~/components/Countdown";
 import { Media } from "~/components/Media";
-import { eventHref } from "~/lib/urls";
+import { eventHref, rooted } from "~/lib/urls";
 import type { EventItem } from "~/types";
 
 export function NextEventCard({ event }: { event: EventItem }) {
+  const banner = rooted(event.banner);
+
   return (
-    <a className="next-card" href={eventHref(event)}>
+    <a className={`next-card${banner ? " next-card--media" : ""}`} href={eventHref(event)}>
+      {banner ? (
+        <>
+          <img className="next-card__bg" src={banner} alt="" aria-hidden="true" decoding="async" />
+          <span className="next-card__scrim" aria-hidden="true" />
+        </>
+      ) : null}
       <div className="next-card__body">
         <span className="eyebrow">★ Up next</span>
         <div className="next-card__title">{event.title}</div>

@@ -30,6 +30,7 @@ export interface EventItem {
   poster: string;
   posterAlt: string;
   cover: string;
+  banner: string;
   drive?: string;
   requestsOpen?: boolean;
   video: string;
@@ -81,6 +82,7 @@ export interface AdminEvent {
   video: string | null;
   poster_url: string | null;
   cover_url: string | null;
+  banner_url: string | null;
   drive_url: string | null;
   page: string | null;
   position: number | null;

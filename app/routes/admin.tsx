@@ -75,6 +75,8 @@ function str(form: FormData, name: string) {
 function eventPayload(form: FormData) {
   const zone = str(form, "timezone") || "America/Denver";
   const date = str(form, "date");
+  // Poster/cover live in a separate form — omit them here so Save event
+  // does not wipe existing image URLs with empty strings.
   return {
     slug: str(form, "slug"),
     name: str(form, "name"),
@@ -89,8 +91,6 @@ function eventPayload(form: FormData) {
     cta: str(form, "cta"),
     stats: str(form, "stats"),
     video: str(form, "video"),
-    poster_url: str(form, "poster_url"),
-    cover_url: str(form, "cover_url"),
     page: str(form, "page"),
     drive_url: str(form, "drive_url"),
     position: Number(str(form, "position")) || 0,
@@ -199,11 +199,15 @@ export async function action({ request }: Route.ActionArgs) {
 
   const ok = (message: string, extra?: Record<string, unknown>) =>
     data({ message, failed: false, ...extra }, { headers: mergeHeaders(headers) });
-  const fail = (error: unknown) =>
-    data(
-      { message: error instanceof Error ? error.message : "Something went wrong", failed: true },
-      { headers: mergeHeaders(headers) },
-    );
+  const fail = (error: unknown) => {
+    const message =
+      error instanceof Error
+        ? error.message
+        : error && typeof error === "object" && "message" in error && typeof (error as { message: unknown }).message === "string"
+          ? (error as { message: string }).message
+          : "Something went wrong";
+    return data({ message, failed: true }, { headers: mergeHeaders(headers) });
+  };
 
   try {
     switch (intent) {
@@ -219,6 +223,7 @@ export async function action({ request }: Route.ActionArgs) {
         await saveEvent(supabase, id, {
           poster_url: str(form, "poster_url"),
           cover_url: str(form, "cover_url"),
+          banner_url: str(form, "banner_url"),
         });
         return ok("Saved ✓");
       }

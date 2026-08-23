@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Form, useFetcher } from "react-router";
 import { Checkbox, Field } from "~/admin/fields";
 import { TIMEZONES, fromIso } from "~/lib/admin-utils";
@@ -12,6 +13,13 @@ function UploadField({
   target: string;
 }) {
   const fetcher = useFetcher<{ url?: string; message?: string }>();
+
+  useEffect(() => {
+    const url = fetcher.data?.url;
+    if (!url) return;
+    const input = document.querySelector<HTMLInputElement>(`input[name="${target}"]`);
+    if (input) input.value = url;
+  }, [fetcher.data, target]);
 
   return (
     <label className="admin-field">
@@ -28,7 +36,7 @@ function UploadField({
           }}
         />
       </fetcher.Form>
-      {fetcher.data?.url ? <small>Uploaded: {fetcher.data.url}</small> : null}
+      {fetcher.data?.url ? <small>Uploaded — press Save image URLs</small> : null}
     </label>
   );
 }
@@ -135,8 +143,8 @@ export function EventEditor({
       <div className="admin-card">
         <h2 className="h2">Poster and cover</h2>
         <p className="admin-hint">
-          Upload an image or paste a link. The poster is the tall image on the events page; the cover is the wide one on
-          the home page.
+          Upload an image or paste a link. Poster = tall image on the event page. Cover = wide thumbnail on recent
+          events. Up next background = home “Up next” card (separate from the cover).
         </p>
         <Form method="post">
           <input type="hidden" name="id" value={event.id || ""} />
@@ -144,6 +152,12 @@ export function EventEditor({
           <div className="admin-grid">
             <Field label="Poster URL" name="poster_url" defaultValue={event.poster_url || ""} />
             <Field label="Cover URL" name="cover_url" defaultValue={event.cover_url || ""} />
+            <Field
+              label="Up next background URL"
+              name="banner_url"
+              defaultValue={event.banner_url || ""}
+              hint=" — only used on the home Up next card"
+            />
           </div>
           <div className="admin-actions">
             <button className="btn btn--primary" type="submit">
@@ -154,6 +168,7 @@ export function EventEditor({
         <div className="admin-grid" style={{ marginTop: 12 }}>
           <UploadField label="Upload poster" target="poster_url" />
           <UploadField label="Upload cover" target="cover_url" />
+          <UploadField label="Upload Up next background" target="banner_url" />
         </div>
         <p className="admin-hint">Uploading fills the URL box — then press <strong>Save image URLs</strong>.</p>
       </div>
