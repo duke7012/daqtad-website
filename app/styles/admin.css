@@ -379,6 +379,30 @@ details.admin-card .admin-hint { margin-top: 12px; }
 
 .admin-check input { width: 18px; height: 18px; accent-color: var(--violet); }
 
+.admin-check--inline {
+  margin: 0;
+  font-size: 13px;
+}
+
+.admin-card--nested {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-md);
+  background: var(--bg);
+}
+
+.admin-card--nested .h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.admin-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .admin-actions {
   display: flex;
   flex-wrap: wrap;

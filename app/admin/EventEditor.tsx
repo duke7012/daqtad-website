@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Form, useFetcher } from "react-router";
+import { PageSectionsEditor } from "~/admin/PageSectionsEditor";
 import { Checkbox, Field } from "~/admin/fields";
 import { TIMEZONES, fromIso } from "~/lib/admin-utils";
 import { rooted } from "~/lib/urls";
@@ -105,6 +106,13 @@ export function EventEditor({
             hint=" — one YouTube link or ID per line"
           />
           <Field
+            label="Instagram posts"
+            name="instagram_posts"
+            defaultValue={event.instagram_posts || ""}
+            type="textarea"
+            hint=" — one Instagram post or reel URL per line (shown on upcoming event pages)"
+          />
+          <Field
             label="Sort order"
             name="position"
             defaultValue={event.position || 0}
@@ -129,6 +137,18 @@ export function EventEditor({
         </div>
         <div className="admin-actions">
           <Checkbox label="Song requests are open" name="requests_open" defaultChecked={!!event.requests_open} />
+        </div>
+        <div className="admin-card admin-card--nested">
+          <h3 className="h3">Page sections</h3>
+          <p className="admin-hint">
+            Choose which blocks appear on this event&apos;s page and in what order. The hero at the top is always
+            shown.
+          </p>
+          <PageSectionsEditor
+            name="page_sections"
+            defaultValue={event.page_sections}
+            status={event.status || "upcoming"}
+          />
         </div>
         <div className="admin-actions">
           <button className="btn btn--primary" type="submit" name="intent" value="event-save">

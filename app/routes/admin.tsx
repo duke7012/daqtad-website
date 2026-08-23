@@ -9,6 +9,7 @@ import { RoundEditor } from "~/admin/RoundEditor";
 import { SettingsTab } from "~/admin/SettingsTab";
 import { SongsTab } from "~/admin/SongsTab";
 import { BrandLogo } from "~/components/BrandLogo";
+import { parsePageSections } from "~/lib/event-sections";
 import {
   addFaq,
   addPhotos,
@@ -75,13 +76,14 @@ function str(form: FormData, name: string) {
 function eventPayload(form: FormData) {
   const zone = str(form, "timezone") || "America/Denver";
   const date = str(form, "date");
+  const status = str(form, "status");
   // Poster/cover live in a separate form — omit them here so Save event
   // does not wipe existing image URLs with empty strings.
   return {
     slug: str(form, "slug"),
     name: str(form, "name"),
     subtitle: str(form, "subtitle"),
-    status: str(form, "status"),
+    status,
     timezone: zone,
     starts_at: toIso(date, str(form, "start_time"), zone),
     ends_at: str(form, "end_time") ? toIso(date, str(form, "end_time"), zone) : null,
@@ -91,6 +93,8 @@ function eventPayload(form: FormData) {
     cta: str(form, "cta"),
     stats: str(form, "stats"),
     video: str(form, "video"),
+    instagram_posts: str(form, "instagram_posts"),
+    page_sections: parsePageSections(str(form, "page_sections"), status),
     page: str(form, "page"),
     drive_url: str(form, "drive_url"),
     position: Number(str(form, "position")) || 0,

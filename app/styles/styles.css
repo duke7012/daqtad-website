@@ -821,6 +821,45 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
 }
 .video-frame__empty small { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); }
 
+.ig-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.ig-frame {
+  position: relative;
+  width: 100%;
+  min-height: 560px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+}
+.ig-frame iframe {
+  display: block;
+  width: 100%;
+  height: 560px;
+  border: 0;
+}
+
+.ig-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 28px 24px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+}
+.ig-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
 /* ----------------------------------------------------------- setlists --- */
 
 .setlist-card {
@@ -1201,6 +1240,8 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
   .next-card__title { font-size: 24px; }
   .cd-unit { min-width: 56px; padding: 12px 10px; }
   .cd-unit b { font-size: 22px; }
+  .ig-frame,
+  .ig-frame iframe { min-height: 480px; height: 480px; }
 
   .event-row__media { width: 100%; min-height: 190px; }
   .event-row__body { padding: 20px 22px 24px; }

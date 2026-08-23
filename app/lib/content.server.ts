@@ -1,3 +1,4 @@
+import { parsePageSections } from "~/lib/event-sections";
 import { sampleSite } from "~/lib/fallback.server";
 import { getConfig, isConfigured, rest, withTimeout } from "~/lib/supabase.server";
 import type { EventItem, Faq, SiteData } from "~/types";
@@ -45,6 +46,8 @@ interface DbEvent {
   drive_url?: string;
   requests_open?: boolean;
   video?: string;
+  instagram_posts?: string;
+  page_sections?: unknown;
   rounds?: DbRound[];
   photos?: DbPhoto[];
 }
@@ -147,6 +150,8 @@ function mapEvent(row: DbEvent): EventItem {
     drive: row.drive_url || "",
     requestsOpen: !!row.requests_open,
     video: row.video || "",
+    instagramPosts: row.instagram_posts || "",
+    pageSections: parsePageSections(row.page_sections, row.status),
     photos,
     rounds,
   };

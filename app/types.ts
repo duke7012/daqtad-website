@@ -1,3 +1,5 @@
+import type { EventPageSection } from "~/lib/event-sections";
+
 export type EventStatus = "upcoming" | "past";
 
 export interface Photo {
@@ -34,6 +36,8 @@ export interface EventItem {
   drive?: string;
   requestsOpen?: boolean;
   video: string;
+  instagramPosts: string;
+  pageSections: EventPageSection[];
   photos: Photo[];
   rounds: Round[];
 }
@@ -80,6 +84,8 @@ export interface AdminEvent {
   cta: string | null;
   stats: string | null;
   video: string | null;
+  instagram_posts: string | null;
+  page_sections: unknown;
   poster_url: string | null;
   cover_url: string | null;
   banner_url: string | null;

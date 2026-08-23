@@ -1,17 +1,20 @@
 import { redirect } from "react-router";
+import type { ReactNode } from "react";
 import { Countdown } from "~/components/Countdown";
 import { DriveLink } from "~/components/DriveLink";
+import { InstagramEmbeds } from "~/components/InstagramEmbeds";
 import { Media } from "~/components/Media";
 import { PhotoGrid } from "~/components/PhotoGrid";
 import { SetlistViewer } from "~/components/SetlistViewer";
 import { SongRequestPanel } from "~/components/SongRequestPanel";
 import { VideoStack } from "~/components/VideoStack";
+import type { EventSectionId } from "~/lib/event-sections";
 import { getEvent, loadSite } from "~/lib/content.server";
 import { pageMeta } from "~/lib/meta";
 import { handleSongRequest } from "~/lib/request-action.server";
 import { listRequests } from "~/lib/requests.server";
 import { absolute, eventHref, isCustomEventPage, safeHref } from "~/lib/urls";
-import type { EventItem } from "~/types";
+import type { EventItem, SongRequest } from "~/types";
 import type { Route } from "./+types/events-slug";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -103,6 +106,62 @@ function EventHead({ event, social }: { event: EventItem; social: { instagram: s
   );
 }
 
+function eventSectionContent(
+  id: EventSectionId,
+  event: EventItem,
+  requests: SongRequest[],
+  social: { instagram: string; facebook: string },
+): ReactNode | null {
+  const hasPhotos = !!(event.photos && event.photos.length);
+  const hasSetlist = !!(event.rounds && event.rounds.length);
+
+  switch (id) {
+    case "requests":
+      return (
+        <SongRequestPanel
+          event={event}
+          requests={requests}
+          note="Want your bias's song in the playlist? Drop it here — we pick the most-requested ones."
+        />
+      );
+    case "instagram":
+      return (
+        <>
+          <h2 className="h2">From Instagram 📸</h2>
+          <InstagramEmbeds posts={event.instagramPosts} profile={social.instagram} />
+        </>
+      );
+    case "videos":
+      return (
+        <>
+          <h2 className="h2">Videos 🎬</h2>
+          <VideoStack event={event} />
+        </>
+      );
+    case "photos":
+      if (!hasPhotos) return null;
+      return (
+        <>
+          <h2 className="h2">Photos 📸</h2>
+          <PhotoGrid photos={event.photos} placeholder={`${event.name} photo`} large />
+        </>
+      );
+    case "setlists":
+      if (!hasSetlist) return null;
+      return (
+        <>
+          <h2 className="h2">Setlists 🎵</h2>
+          <p className="lede lede--tight">
+            Every song from each round, in order. Use the search box to check whether a track was played.
+          </p>
+          <SetlistViewer event={event} mode="full" />
+        </>
+      );
+    default:
+      return null;
+  }
+}
+
 export default function EventDetail({ loaderData }: Route.ComponentProps) {
   const { event, slug, requests, social } = loaderData;
 
@@ -127,8 +186,14 @@ export default function EventDetail({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  const hasPhotos = !!(event.photos && event.photos.length);
-  const hasSetlist = !!(event.rounds && event.rounds.length);
+  const upcoming = event.status === "upcoming";
+  const sections = event.pageSections
+    .filter((section) => section.visible)
+    .map((section) => ({
+      id: section.id,
+      content: eventSectionContent(section.id, event, requests, social),
+    }))
+    .filter((section) => section.content);
 
   return (
     <main id="main">
@@ -142,44 +207,21 @@ export default function EventDetail({ loaderData }: Route.ComponentProps) {
               src={event.poster}
               alt={event.posterAlt}
               placeholder={`${event.name} event poster (4:5)`}
-              modifier={event.status === "upcoming" ? "media--dark" : ""}
+              modifier={upcoming ? "media--dark" : ""}
             />
           </div>
           <EventHead event={event} social={social} />
         </div>
       </section>
 
-      <section className="section section--narrow">
-        <h2 className="h2">Videos 🎬</h2>
-        <VideoStack event={event} />
-      </section>
-
-      {hasPhotos ? (
-        <section className="section section--narrow">
-          <h2 className="h2">Photos 📸</h2>
-          <PhotoGrid photos={event.photos} placeholder={`${event.name} photo`} large />
+      {sections.map((section, index) => (
+        <section
+          className={`section section--narrow${index === sections.length - 1 ? " section--last" : ""}`}
+          key={section.id}
+        >
+          {section.content}
         </section>
-      ) : null}
-
-      {event.requestsOpen ? (
-        <section className="section section--narrow">
-          <SongRequestPanel
-            event={event}
-            requests={requests}
-            note="Want your bias's song in the playlist? Drop it here — we pick the most-requested ones."
-          />
-        </section>
-      ) : null}
-
-      {hasSetlist ? (
-        <section className="section section--narrow section--last">
-          <h2 className="h2">Setlists 🎵</h2>
-          <p className="lede lede--tight">
-            Every song from each round, in order. Use the search box to check whether a track was played.
-          </p>
-          <SetlistViewer event={event} mode="full" />
-        </section>
-      ) : null}
+      ))}
     </main>
   );
 }

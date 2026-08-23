@@ -55,6 +55,32 @@ export function youtubeIds(value: string | null | undefined): string[] {
   return ids;
 }
 
+const INSTAGRAM_POST =
+  /^https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/i;
+
+export function instagramEmbedUrl(value: string | null | undefined): string {
+  const raw = safeHref(value);
+  if (!raw) return "";
+  const match = INSTAGRAM_POST.exec(raw);
+  if (!match) return "";
+  const kind = /\/reel\//i.test(raw) ? "reel" : /\/tv\//i.test(raw) ? "tv" : "p";
+  return `https://www.instagram.com/${kind}/${match[1]}/embed`;
+}
+
+export function instagramEmbedUrls(value: string | null | undefined): string[] {
+  const raw = String(value ?? "");
+  if (!raw.trim()) return [];
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  for (const chunk of raw.split(/[\n,]+/)) {
+    const embed = instagramEmbedUrl(chunk);
+    if (!embed || seen.has(embed)) continue;
+    seen.add(embed);
+    urls.push(embed);
+  }
+  return urls;
+}
+
 export function isCustomEventPage(page: string | null | undefined): boolean {
   return rooted(page) === "/events/popup";
 }

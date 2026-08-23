@@ -38,6 +38,8 @@ create table if not exists public.events (
   banner_url    text not null default '',      -- wide background for the home "Up next" card
   drive_url     text not null default '',      -- optional per-event Google Drive album
   video         text not null default '',      -- YouTube links/IDs, one per line
+  instagram_posts text not null default '',    -- Instagram post/reel URLs, one per line
+  page_sections jsonb not null default '[]',   -- section order + visibility on event page
   requests_open boolean not null default false,
   page          text not null default '',      -- blank => /events/<slug>
   position      int not null default 0,        -- higher sorts first
@@ -46,6 +48,8 @@ create table if not exists public.events (
 
 alter table public.events add column if not exists drive_url text not null default '';
 alter table public.events add column if not exists banner_url text not null default '';
+alter table public.events add column if not exists instagram_posts text not null default '';
+alter table public.events add column if not exists page_sections jsonb not null default '[]';
 
 create table if not exists public.rounds (
   id         uuid primary key default gen_random_uuid(),
