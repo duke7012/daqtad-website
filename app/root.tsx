@@ -54,7 +54,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       error.status === 404
         ? "The song ended before we could find it. Try one of these instead:"
         : error.status === 413
-          ? "That upload is too large. Photos must be under 4 MB each — pick fewer or smaller files."
+          ? "That upload is too large for the server. Photos over 4 MB are usually compressed first — try again or use a smaller file."
           : error.data || detail;
   } else if (error instanceof Error) {
     detail = error.message;

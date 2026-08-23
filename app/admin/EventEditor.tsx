@@ -3,6 +3,7 @@ import { Form, useFetcher, useRevalidator } from "react-router";
 import { PageSectionsEditor } from "~/admin/PageSectionsEditor";
 import { Checkbox, Field } from "~/admin/fields";
 import { TIMEZONES, fromIso } from "~/lib/admin-utils";
+import { compressImageIfNeeded } from "~/lib/compress-image";
 import { rooted } from "~/lib/urls";
 import type { AdminEvent, AdminPhoto, AdminRound } from "~/types";
 
@@ -12,25 +13,42 @@ function PhotoUploadField({ eventId }: { eventId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const filesRef = useRef<File[]>([]);
   const indexRef = useRef(0);
+  const waitingRef = useRef(false);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const [status, setStatus] = useState("");
+  const [phase, setPhase] = useState<"idle" | "compressing" | "uploading">("idle");
 
-  function submitCurrent() {
-    const file = filesRef.current[indexRef.current];
-    if (!file) return;
+  async function submitCurrent() {
+    const original = filesRef.current[indexRef.current];
+    if (!original) return;
     setProgress({ current: indexRef.current + 1, total: filesRef.current.length });
-    const formData = new FormData();
-    formData.set("intent", "upload-photos");
-    formData.set("event_id", eventId);
-    formData.set("file", file);
-    fetcher.submit(formData, { method: "post", encType: "multipart/form-data" });
+    try {
+      setPhase("compressing");
+      const file = await compressImageIfNeeded(original);
+      setPhase("uploading");
+      waitingRef.current = true;
+      const formData = new FormData();
+      formData.set("intent", "upload-photos");
+      formData.set("event_id", eventId);
+      formData.set("file", file);
+      fetcher.submit(formData, { method: "post", encType: "multipart/form-data" });
+    } catch (error) {
+      waitingRef.current = false;
+      setPhase("idle");
+      setStatus(error instanceof Error ? error.message : "Compression failed.");
+      setProgress(null);
+      filesRef.current = [];
+      if (inputRef.current) inputRef.current.value = "";
+    }
   }
 
   useEffect(() => {
-    if (!progress || fetcher.state !== "idle" || !fetcher.data) return;
+    if (!waitingRef.current || fetcher.state !== "idle" || !fetcher.data) return;
+    waitingRef.current = false;
 
     if (fetcher.data.failed) {
       setStatus(fetcher.data.message || "Upload failed.");
+      setPhase("idle");
       setProgress(null);
       filesRef.current = [];
       if (inputRef.current) inputRef.current.value = "";
@@ -39,26 +57,27 @@ function PhotoUploadField({ eventId }: { eventId: string }) {
 
     indexRef.current += 1;
     if (indexRef.current < filesRef.current.length) {
-      submitCurrent();
+      void submitCurrent();
       return;
     }
 
     const count = filesRef.current.length;
     setStatus(`Uploaded ${count} photo${count === 1 ? "" : "s"} ✓`);
+    setPhase("idle");
     setProgress(null);
     filesRef.current = [];
     if (inputRef.current) inputRef.current.value = "";
     revalidator.revalidate();
-  }, [progress, fetcher.state, fetcher.data, eventId, revalidator]);
+  }, [fetcher.state, fetcher.data, eventId, revalidator]);
 
-  const busy = progress !== null || fetcher.state !== "idle";
+  const busy = phase !== "idle" || fetcher.state !== "idle";
 
   return (
     <div className="admin-actions">
       <label className="admin-field">
         <span>
           Upload photos
-          <small> — one at a time, max 4 MB each</small>
+          <small> — large files are compressed automatically</small>
         </span>
         <input
           ref={inputRef}
@@ -72,13 +91,13 @@ function PhotoUploadField({ eventId }: { eventId: string }) {
             filesRef.current = list;
             indexRef.current = 0;
             setStatus("");
-            submitCurrent();
+            void submitCurrent();
           }}
         />
       </label>
       {progress ? (
         <p className="admin-hint">
-          Uploading {progress.current} of {progress.total}…
+          {phase === "compressing" ? "Compressing" : "Uploading"} {progress.current} of {progress.total}…
         </p>
       ) : null}
       {!progress && status ? <p className="admin-hint">{status}</p> : null}
@@ -94,6 +113,7 @@ function UploadField({
   target: string;
 }) {
   const fetcher = useFetcher<{ url?: string; message?: string }>();
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const url = fetcher.data?.url;
@@ -104,20 +124,35 @@ function UploadField({
 
   return (
     <label className="admin-field">
-      <span>{label}</span>
-      <fetcher.Form method="post" encType="multipart/form-data">
-        <input type="hidden" name="intent" value="upload-image" />
-        <input type="hidden" name="target" value={target} />
-        <input
-          type="file"
-          name="file"
-          accept="image/*"
-          onChange={(event) => {
-            if (event.currentTarget.files?.length) event.currentTarget.form?.requestSubmit();
-          }}
-        />
-      </fetcher.Form>
-      {fetcher.data?.url ? <small>Uploaded — press Save image URLs</small> : null}
+      <span>
+        {label}
+        <small> — large files are compressed automatically</small>
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        disabled={busy || fetcher.state !== "idle"}
+        onChange={async (event) => {
+          const original = event.currentTarget.files?.[0];
+          event.currentTarget.value = "";
+          if (!original) return;
+          setBusy(true);
+          try {
+            const file = await compressImageIfNeeded(original);
+            const formData = new FormData();
+            formData.set("intent", "upload-image");
+            formData.set("target", target);
+            formData.set("file", file);
+            fetcher.submit(formData, { method: "post", encType: "multipart/form-data" });
+          } catch (error) {
+            window.alert(error instanceof Error ? error.message : "Compression failed.");
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
+      {busy ? <small>Compressing…</small> : null}
+      {!busy && fetcher.data?.url ? <small>Uploaded — press Save image URLs</small> : null}
     </label>
   );
 }
