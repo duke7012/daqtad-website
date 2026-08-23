@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
 import type { ReactNode } from "react";
 import { Countdown } from "~/components/Countdown";
-import { DriveLink } from "~/components/DriveLink";
+import { EventHeroButtons } from "~/components/EventHeroButtons";
 import { InstagramEmbeds } from "~/components/InstagramEmbeds";
 import { Media } from "~/components/Media";
 import { PhotoGrid } from "~/components/PhotoGrid";
@@ -15,7 +15,7 @@ import type { InstagramPhoto } from "~/lib/instagram.server";
 import { pageMeta } from "~/lib/meta";
 import { handleSongRequest } from "~/lib/request-action.server";
 import { listRequests } from "~/lib/requests.server";
-import { absolute, eventHref, isCustomEventPage, safeHref } from "~/lib/urls";
+import { absolute, eventHref, isCustomEventPage } from "~/lib/urls";
 import type { EventItem, SongRequest } from "~/types";
 import type { Route } from "./+types/events-slug";
 
@@ -60,9 +60,6 @@ export function meta({ data }: Route.MetaArgs) {
 function EventHead({ event, social }: { event: EventItem; social: { instagram: string; facebook: string } }) {
   const upcoming = event.status === "upcoming";
   const when = [event.dateLabel, event.timeLabel].filter(Boolean).join(" · ");
-  const instagram = safeHref(social.instagram);
-  const facebook = safeHref(social.facebook);
-  const drive = safeHref(event.drive);
 
   return (
     <div className="event-hero__body">
@@ -88,23 +85,7 @@ function EventHead({ event, social }: { event: EventItem; social: { instagram: s
       {upcoming && event.startsAt ? (
         <Countdown target={event.startsAt} modifier="countdown--light" />
       ) : null}
-      {instagram || facebook || drive ? (
-        <div className="btn-row">
-          {instagram ? (
-            <a className="btn btn--outline btn--sm btn--icon" href={instagram} target="_blank" rel="noopener">
-              <span className="icon icon--instagram" aria-hidden="true"></span>
-              Instagram
-            </a>
-          ) : null}
-          {facebook ? (
-            <a className="btn btn--outline btn--sm btn--icon" href={facebook} target="_blank" rel="noopener">
-              <span className="icon icon--facebook" aria-hidden="true"></span>
-              Photo album
-            </a>
-          ) : null}
-          <DriveLink href={drive} />
-        </div>
-      ) : null}
+      <EventHeroButtons event={event} social={social} />
     </div>
   );
 }

@@ -97,6 +97,13 @@ function eventPayload(form: FormData) {
     page_sections: parsePageSections(str(form, "page_sections"), status),
     page: str(form, "page"),
     drive_url: str(form, "drive_url"),
+    instagram_url: str(form, "instagram_url"),
+    facebook_url: str(form, "facebook_url"),
+    youtube_url: str(form, "youtube_url"),
+    show_instagram: form.get("show_instagram") === "on",
+    show_facebook: form.get("show_facebook") === "on",
+    show_youtube: form.get("show_youtube") === "on",
+    show_drive: form.get("show_drive") === "on",
     position: Number(str(form, "position")) || 0,
     requests_open: form.get("requests_open") === "on",
   };

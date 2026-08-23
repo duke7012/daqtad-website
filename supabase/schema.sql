@@ -40,6 +40,13 @@ create table if not exists public.events (
   video         text not null default '',      -- YouTube links/IDs, one per line
   instagram_posts text not null default '',    -- Instagram post/reel URLs, one per line
   page_sections jsonb not null default '[]',   -- section order + visibility on event page
+  instagram_url text not null default '',      -- hero button; blank uses site Settings default
+  facebook_url  text not null default '',
+  youtube_url   text not null default '',
+  show_instagram boolean not null default true,
+  show_facebook  boolean not null default true,
+  show_youtube   boolean not null default false,
+  show_drive     boolean not null default true,
   requests_open boolean not null default false,
   page          text not null default '',      -- blank => /events/<slug>
   position      int not null default 0,        -- higher sorts first
@@ -50,6 +57,13 @@ alter table public.events add column if not exists drive_url text not null defau
 alter table public.events add column if not exists banner_url text not null default '';
 alter table public.events add column if not exists instagram_posts text not null default '';
 alter table public.events add column if not exists page_sections jsonb not null default '[]';
+alter table public.events add column if not exists instagram_url text not null default '';
+alter table public.events add column if not exists facebook_url text not null default '';
+alter table public.events add column if not exists youtube_url text not null default '';
+alter table public.events add column if not exists show_instagram boolean not null default true;
+alter table public.events add column if not exists show_facebook boolean not null default true;
+alter table public.events add column if not exists show_youtube boolean not null default false;
+alter table public.events add column if not exists show_drive boolean not null default true;
 
 create table if not exists public.rounds (
   id         uuid primary key default gen_random_uuid(),

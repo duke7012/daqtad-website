@@ -1,5 +1,5 @@
 import { Countdown } from "~/components/Countdown";
-import { DriveLink } from "~/components/DriveLink";
+import { EventHeroButtons } from "~/components/EventHeroButtons";
 import { Media } from "~/components/Media";
 import { SongRequestPanel } from "~/components/SongRequestPanel";
 import { VideoStack } from "~/components/VideoStack";
@@ -7,7 +7,7 @@ import { getEvent, loadSite } from "~/lib/content.server";
 import { pageMeta } from "~/lib/meta";
 import { handleSongRequest } from "~/lib/request-action.server";
 import { listRequests } from "~/lib/requests.server";
-import { SITE_ORIGIN, safeHref } from "~/lib/urls";
+import { SITE_ORIGIN } from "~/lib/urls";
 import type { Route } from "./+types/events-popup";
 
 export async function loader() {
@@ -65,8 +65,6 @@ const jsonLd = {
 
 export default function EventPopup({ loaderData }: Route.ComponentProps) {
   const { event, requests, social } = loaderData;
-  const instagram = safeHref(social.instagram) || "https://instagram.com/daqtad";
-  const facebook = safeHref(social.facebook) || "https://fb.com/daqtad";
 
   return (
     <main id="main">
@@ -99,17 +97,7 @@ export default function EventPopup({ loaderData }: Route.ComponentProps) {
               🎟 Free — just show up and dance!
             </p>
             <Countdown target={event?.startsAt || "2026-09-11T16:00:00-06:00"} modifier="countdown--light" />
-            <div className="btn-row">
-              <a className="btn btn--outline btn--sm btn--icon" href={instagram} target="_blank" rel="noopener">
-                <span className="icon icon--instagram" aria-hidden="true"></span>
-                Event post
-              </a>
-              <a className="btn btn--outline btn--sm btn--icon" href={facebook} target="_blank" rel="noopener">
-                <span className="icon icon--facebook" aria-hidden="true"></span>
-                Event page
-              </a>
-              <DriveLink href={event?.drive} />
-            </div>
+            {event ? <EventHeroButtons event={event} social={social} /> : null}
           </div>
         </div>
       </section>

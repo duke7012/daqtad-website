@@ -34,6 +34,13 @@ export interface EventItem {
   cover: string;
   banner: string;
   drive?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  youtubeUrl?: string;
+  showInstagram?: boolean;
+  showFacebook?: boolean;
+  showYoutube?: boolean;
+  showDrive?: boolean;
   requestsOpen?: boolean;
   video: string;
   instagramPosts: string;
@@ -90,6 +97,13 @@ export interface AdminEvent {
   cover_url: string | null;
   banner_url: string | null;
   drive_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  youtube_url: string | null;
+  show_instagram: boolean | null;
+  show_facebook: boolean | null;
+  show_youtube: boolean | null;
+  show_drive: boolean | null;
   page: string | null;
   position: number | null;
   requests_open: boolean | null;

@@ -126,14 +126,53 @@ export function EventEditor({
             hint={` — leave blank to use /events/${event.slug || "the-slug"}`}
             placeholder="/events/popup"
           />
-          <Field
-            label="Google Drive"
-            name="drive_url"
-            defaultValue={event.drive_url || ""}
-            type="url"
-            hint=" — optional album for this event only"
-            placeholder="https://drive.google.com/drive/folders/…"
-          />
+        </div>
+        <div className="admin-card admin-card--nested">
+          <h3 className="h3">Hero buttons</h3>
+          <p className="admin-hint">
+            Links shown under the countdown on this event&apos;s page. Leave Instagram or Facebook blank to use the
+            site defaults from Settings. YouTube can use a custom URL or the first video from the Videos field.
+          </p>
+          <div className="admin-grid">
+            <Field
+              label="Instagram URL"
+              name="instagram_url"
+              defaultValue={event.instagram_url || ""}
+              type="url"
+              hint=" — optional override"
+              placeholder="https://instagram.com/…"
+            />
+            <Field
+              label="Facebook / photo album URL"
+              name="facebook_url"
+              defaultValue={event.facebook_url || ""}
+              type="url"
+              hint=" — optional override"
+              placeholder="https://facebook.com/…"
+            />
+            <Field
+              label="YouTube URL"
+              name="youtube_url"
+              defaultValue={event.youtube_url || ""}
+              type="url"
+              hint=" — channel or video link"
+              placeholder="https://youtube.com/…"
+            />
+            <Field
+              label="Google Drive"
+              name="drive_url"
+              defaultValue={event.drive_url || ""}
+              type="url"
+              hint=" — optional photo album"
+              placeholder="https://drive.google.com/drive/folders/…"
+            />
+          </div>
+          <div className="admin-actions">
+            <Checkbox label="Show Instagram" name="show_instagram" defaultChecked={event.show_instagram !== false} />
+            <Checkbox label="Show photo album" name="show_facebook" defaultChecked={event.show_facebook !== false} />
+            <Checkbox label="Show YouTube" name="show_youtube" defaultChecked={!!event.show_youtube} />
+            <Checkbox label="Show photo drive" name="show_drive" defaultChecked={event.show_drive !== false} />
+          </div>
         </div>
         <div className="admin-actions">
           <Checkbox label="Song requests are open" name="requests_open" defaultChecked={!!event.requests_open} />

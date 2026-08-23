@@ -44,6 +44,13 @@ interface DbEvent {
   cover_url?: string;
   banner_url?: string;
   drive_url?: string;
+  instagram_url?: string;
+  facebook_url?: string;
+  youtube_url?: string;
+  show_instagram?: boolean;
+  show_facebook?: boolean;
+  show_youtube?: boolean;
+  show_drive?: boolean;
   requests_open?: boolean;
   video?: string;
   instagram_posts?: string;
@@ -148,6 +155,13 @@ function mapEvent(row: DbEvent): EventItem {
     cover: row.cover_url || "",
     banner: row.banner_url || (row.status === "upcoming" ? "/assets/images/events/bopsim2026-bg.jpg" : ""),
     drive: row.drive_url || "",
+    instagramUrl: row.instagram_url || "",
+    facebookUrl: row.facebook_url || "",
+    youtubeUrl: row.youtube_url || "",
+    showInstagram: row.show_instagram !== false,
+    showFacebook: row.show_facebook !== false,
+    showYoutube: !!row.show_youtube,
+    showDrive: row.show_drive !== false,
     requestsOpen: !!row.requests_open,
     video: row.video || "",
     instagramPosts: row.instagram_posts || "",
