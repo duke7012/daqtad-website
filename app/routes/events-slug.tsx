@@ -79,7 +79,9 @@ function EventHead({ event, social }: { event: EventItem; social: { instagram: s
         {(when || event.venue) && event.stats ? <br /> : null}
         {event.stats ? <>💃 {event.stats}</> : null}
       </p>
-      {upcoming && event.startsAt ? <Countdown target={event.startsAt} /> : null}
+      {upcoming && event.startsAt ? (
+        <Countdown target={event.startsAt} modifier="countdown--light" />
+      ) : null}
       {instagram || facebook || drive ? (
         <div className="btn-row">
           {instagram ? (
