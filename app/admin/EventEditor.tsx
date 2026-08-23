@@ -110,7 +110,7 @@ export function EventEditor({
             name="instagram_posts"
             defaultValue={event.instagram_posts || ""}
             type="textarea"
-            hint=" — one Instagram post or reel URL per line (shown on upcoming event pages)"
+            hint=" — one post URL per line; add “ | caption” to override the hover text"
           />
           <Field
             label="Sort order"

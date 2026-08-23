@@ -9,6 +9,7 @@ export default [
     route("gallery", "routes/gallery.tsx"),
     route("setlists", "routes/setlists.tsx"),
     route("about", "routes/about.tsx"),
+    route("resources/instagram-photo", "routes/resources.instagram-photo.tsx"),
     route("*", "routes/not-found.tsx"),
   ]),
   route("admin", "routes/admin.tsx"),

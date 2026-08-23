@@ -21,7 +21,7 @@ export function NextEventCard({ event }: { event: EventItem }) {
           {event.dateLabel} · {event.timeLabel} · {event.venue}
         </div>
         {event.requestsOpen ? (
-          <div className="next-card__cta">Song requests are open → tap to request</div>
+          <div className="next-card__cta">VIEW EVENT →</div>
         ) : null}
       </div>
       {event.startsAt ? <Countdown target={event.startsAt} /> : null}

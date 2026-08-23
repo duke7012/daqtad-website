@@ -10,6 +10,8 @@ import { SongRequestPanel } from "~/components/SongRequestPanel";
 import { VideoStack } from "~/components/VideoStack";
 import type { EventSectionId } from "~/lib/event-sections";
 import { getEvent, loadSite } from "~/lib/content.server";
+import { resolveInstagramPhotos } from "~/lib/instagram.server";
+import type { InstagramPhoto } from "~/lib/instagram.server";
 import { pageMeta } from "~/lib/meta";
 import { handleSongRequest } from "~/lib/request-action.server";
 import { listRequests } from "~/lib/requests.server";
@@ -25,7 +27,8 @@ export async function loader({ params }: Route.LoaderArgs) {
     throw redirect(eventHref(event));
   }
   const requests = event?.id ? await listRequests(event.id) : [];
-  return { slug, event: event ?? null, requests, social: site.social };
+  const instagramPhotos = event?.instagramPosts ? await resolveInstagramPhotos(event.instagramPosts) : [];
+  return { slug, event: event ?? null, requests, social: site.social, instagramPhotos };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -111,6 +114,7 @@ function eventSectionContent(
   event: EventItem,
   requests: SongRequest[],
   social: { instagram: string; facebook: string },
+  instagramPhotos: InstagramPhoto[],
 ): ReactNode | null {
   const hasPhotos = !!(event.photos && event.photos.length);
   const hasSetlist = !!(event.rounds && event.rounds.length);
@@ -128,7 +132,7 @@ function eventSectionContent(
       return (
         <>
           <h2 className="h2">From Instagram 📸</h2>
-          <InstagramEmbeds posts={event.instagramPosts} profile={social.instagram} />
+          <InstagramEmbeds items={instagramPhotos} profile={social.instagram} />
         </>
       );
     case "videos":
@@ -163,7 +167,7 @@ function eventSectionContent(
 }
 
 export default function EventDetail({ loaderData }: Route.ComponentProps) {
-  const { event, slug, requests, social } = loaderData;
+  const { event, slug, requests, social, instagramPhotos } = loaderData;
 
   if (!event) {
     return (
@@ -191,7 +195,7 @@ export default function EventDetail({ loaderData }: Route.ComponentProps) {
     .filter((section) => section.visible)
     .map((section) => ({
       id: section.id,
-      content: eventSectionContent(section.id, event, requests, social),
+      content: eventSectionContent(section.id, event, requests, social, instagramPhotos),
     }))
     .filter((section) => section.content);
 

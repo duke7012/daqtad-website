@@ -58,27 +58,40 @@ export function youtubeIds(value: string | null | undefined): string[] {
 const INSTAGRAM_POST =
   /^https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/i;
 
-export function instagramEmbedUrl(value: string | null | undefined): string {
-  const raw = safeHref(value);
-  if (!raw) return "";
-  const match = INSTAGRAM_POST.exec(raw);
-  if (!match) return "";
-  const kind = /\/reel\//i.test(raw) ? "reel" : /\/tv\//i.test(raw) ? "tv" : "p";
-  return `https://www.instagram.com/${kind}/${match[1]}/embed`;
+export function parseInstagramPost(value: string | null | undefined): { kind: string; shortcode: string; href: string } | null {
+  const href = safeHref(value);
+  if (!href) return null;
+  const match = INSTAGRAM_POST.exec(href);
+  if (!match) return null;
+  const kind = /\/reel\//i.test(href) ? "reel" : /\/tv\//i.test(href) ? "tv" : "p";
+  return { kind, shortcode: match[1], href: `https://www.instagram.com/${kind}/${match[1]}/` };
 }
 
-export function instagramEmbedUrls(value: string | null | undefined): string[] {
+export function instagramPostUrls(value: string | null | undefined): string[] {
+  return parseInstagramPostLines(value).map((item) => item.href);
+}
+
+export function parseInstagramPostLines(value: string | null | undefined): { href: string; caption: string }[] {
   const raw = String(value ?? "");
   if (!raw.trim()) return [];
   const seen = new Set<string>();
-  const urls: string[] = [];
+  const items: { href: string; caption: string }[] = [];
+
   for (const chunk of raw.split(/[\n,]+/)) {
-    const embed = instagramEmbedUrl(chunk);
-    if (!embed || seen.has(embed)) continue;
-    seen.add(embed);
-    urls.push(embed);
+    const line = chunk.trim();
+    if (!line) continue;
+
+    const manual = /^\s*(.+?)\s*\|\s*(.+)\s*$/.exec(line);
+    const postPart = manual ? manual[1] : line;
+    const manualCaption = manual ? manual[2].trim() : "";
+
+    const ref = parseInstagramPost(postPart);
+    if (!ref || seen.has(ref.href)) continue;
+    seen.add(ref.href);
+    items.push({ href: ref.href, caption: manualCaption });
   }
-  return urls;
+
+  return items;
 }
 
 export function isCustomEventPage(page: string | null | undefined): boolean {
