@@ -15,6 +15,14 @@ filename in `assets/js/data.js` to match.
 | `about-group.jpg` | About page group photo | 800 × 800, square |
 | `og-cover.jpg` | Link preview when the site is shared | 1200 × 630 |
 
+## Extras — `assets/images/extras/`
+
+| File | Used on | Suggested size |
+| --- | --- | --- |
+| `charity-chua-phat-minh.jpg` | Extras — charity visit | 1200 × 900, landscape |
+| `the-100-project.jpg` | Extras — The 100 Project | 1200 × 900, landscape |
+| `radionair.jpg` | Extras — radiONair | 1200 × 900, landscape |
+
 ## Events — `assets/images/events/`
 
 Two images per event:

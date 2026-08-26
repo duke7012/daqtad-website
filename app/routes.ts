@@ -8,6 +8,7 @@ export default [
     route("events/:slug", "routes/events-slug.tsx"),
     route("gallery", "routes/gallery.tsx"),
     route("setlists", "routes/setlists.tsx"),
+    route("extras", "routes/extras.tsx"),
     route("about", "routes/about.tsx"),
     route("resources/instagram-photo", "routes/resources.instagram-photo.tsx"),
     route("*", "routes/not-found.tsx"),
