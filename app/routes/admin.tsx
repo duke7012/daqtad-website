@@ -431,8 +431,9 @@ export async function action({ request }: Route.ActionArgs) {
         return ok("Saved ✓");
       }
       case "about-photo-upload": {
-        const sectionId = str(form, "section_id");
-        if (!sectionId) return ok("Missing section.", { failed: true });
+        const scope = str(form, "scope");
+        const sectionId = scope === "intro" ? null : str(form, "section_id");
+        if (scope !== "intro" && !sectionId) return ok("Missing section.", { failed: true });
         const file = form.get("file");
         if (!(file instanceof File) || !file.size) return ok("Choose a photo.", { failed: true });
         const url = await uploadFile(supabase, file, "about");
@@ -441,7 +442,8 @@ export async function action({ request }: Route.ActionArgs) {
         return ok("Uploaded ✓");
       }
       case "about-photo-move": {
-        const sectionId = str(form, "section_id");
+        const scope = str(form, "scope");
+        const sectionId = scope === "intro" ? null : str(form, "section_id") || null;
         const photos = await listAboutPhotos(supabase, sectionId);
         await swapPositions(supabase, "about_photos", photos, str(form, "id"), Number(str(form, "dir")));
         return ok("");

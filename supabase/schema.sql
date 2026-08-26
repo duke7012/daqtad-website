@@ -170,15 +170,16 @@ create table if not exists public.extras_projects (
 alter table public.extras_projects add column if not exists videos text not null default '';
 alter table public.extras_projects add column if not exists photo_count int not null default 0;
 
--- Uploaded photos for About story sections.
+-- Uploaded photos for About intro + story sections (null section_id = intro).
 create table if not exists public.about_photos (
   id         uuid primary key default gen_random_uuid(),
-  section_id uuid not null references public.about_sections(id) on delete cascade,
+  section_id uuid references public.about_sections(id) on delete cascade,
   url        text not null,
   alt        text not null default '',
   position   int not null default 0,
   created_at timestamptz not null default now()
 );
+alter table public.about_photos alter column section_id drop not null;
 create index if not exists about_photos_section_idx on public.about_photos (section_id, position);
 
 -- Uploaded photos for Extras project articles.

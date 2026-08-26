@@ -20,7 +20,7 @@ export function AboutTab({
         </div>
         <p className="admin-hint">
           Intro copy for the public About page. Use blank lines between paragraphs. Wrap emphasis in **double
-          asterisks**. Photos and videos are added on each story section below.
+          asterisks**. Add intro photos in the next card, and more media on each story section.
         </p>
         <div className="admin-grid">
           <Field label="Title" name="about_title" defaultValue={settings.about_title || "About DA'QTAD"} />
@@ -41,6 +41,22 @@ export function AboutTab({
           </button>
         </div>
       </Form>
+
+      <div className="admin-card">
+        <div className="admin-head">
+          <h2>Intro photos</h2>
+        </div>
+        <p className="admin-hint">Shown under the intro on the About page. Hidden if empty.</p>
+        <AdminPhotoGallery
+          photos={aboutPhotos.filter((photo) => !photo.section_id)}
+          emptyLabel="No intro photos yet."
+          altIntent="about-photo-alt"
+          moveIntent="about-photo-move"
+          deleteIntent="about-photo-delete"
+          fields={{ scope: "intro" }}
+        />
+        <AdminPhotoUpload intent="about-photo-upload" fields={{ scope: "intro" }} />
+      </div>
 
       <div className="admin-card">
         <div className="admin-head">

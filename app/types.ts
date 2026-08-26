@@ -160,7 +160,7 @@ export interface AdminAboutSection {
 
 export interface AdminAboutPhoto {
   id: string;
-  section_id: string;
+  section_id: string | null;
   url: string;
   alt: string | null;
   position: number;
@@ -215,6 +215,7 @@ export interface AboutPageContent {
   title: string;
   pronunciation: string;
   intro: string;
+  introPhotos: Photo[];
   sections: AboutSection[];
 }
 

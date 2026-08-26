@@ -115,7 +115,7 @@ interface DbExtraProject {
 }
 
 interface DbAboutPhoto {
-  section_id: string;
+  section_id?: string | null;
   url: string;
   alt?: string;
   position?: number;
@@ -343,19 +343,26 @@ function buildAbout(
   photoRows: DbAboutPhoto[],
 ): AboutPageContent {
   const sample = sampleAboutContent();
+  const introPhotos: Photo[] = [];
   const bySection = new Map<string, Photo[]>();
   for (const row of photoRows.slice().sort(byPosition)) {
-    const list = bySection.get(row.section_id) || [];
-    list.push({
+    const photo = {
       src: row.url,
       alt: row.alt || "About photo",
-    });
+    };
+    if (!row.section_id) {
+      introPhotos.push(photo);
+      continue;
+    }
+    const list = bySection.get(row.section_id) || [];
+    list.push(photo);
     bySection.set(row.section_id, list);
   }
   return {
     title: settings?.about_title || sample.title,
     pronunciation: settings?.about_pronunciation || sample.pronunciation,
     intro: settings?.about_intro || sample.intro,
+    introPhotos,
     sections: sections.length
       ? sections.map((row) => mapAboutSection(row, bySection.get(row.id) || []))
       : sample.sections,

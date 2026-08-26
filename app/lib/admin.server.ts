@@ -366,15 +366,19 @@ export async function deleteExtraProject(sb: SupabaseClient, id: string) {
   await q(sb.from("extras_projects").delete().eq("id", id));
 }
 
-export async function listAboutPhotos(sb: SupabaseClient, sectionId?: string): Promise<AdminAboutPhoto[]> {
+export async function listAboutPhotos(
+  sb: SupabaseClient,
+  sectionId?: string | null,
+): Promise<AdminAboutPhoto[]> {
   let query = sb.from("about_photos").select("*").order("position", { ascending: true });
-  if (sectionId) query = query.eq("section_id", sectionId);
+  if (sectionId === null) query = query.is("section_id", null);
+  else if (sectionId) query = query.eq("section_id", sectionId);
   return (await q<AdminAboutPhoto[]>(query)) || [];
 }
 
 export async function addAboutPhotos(
   sb: SupabaseClient,
-  sectionId: string,
+  sectionId: string | null,
   urls: string[],
   photos: AdminAboutPhoto[],
 ) {

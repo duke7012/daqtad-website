@@ -46,6 +46,7 @@ export function sampleAboutContent(): AboutPageContent {
     pronunciation: "/duh-kah-taht/",
     intro:
       "**DA'QTAD** is a K-pop community originally founded in **Bến Tre City, Vietnam, in 2019** by a group of high school friends: (Tâm) Đan, (Trúc) An, (Thúy) Quyên, (Phan) Thông, (Trúc) Anh, and Duke.\n\nWhat started as a shared love for K-pop quickly became something bigger. We wanted to bring K-pop events closer to our local community, especially **K-pop Random Play Dance**, or RPD, where fans gather, recognize songs as they play, jump onto the dance floor, and perform the choreography together.",
+    introPhotos: [],
     sections: [
       {
         id: "vietnam",

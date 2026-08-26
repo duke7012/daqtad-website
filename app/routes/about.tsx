@@ -41,6 +41,11 @@ export default function About({ loaderData }: Route.ComponentProps) {
             <RichText key={i} text={paragraph} />
           ))}
         </div>
+        {about.introPhotos?.length ? (
+          <div className="about-section-media">
+            <PhotoGrid photos={about.introPhotos} placeholder="About photo" large />
+          </div>
+        ) : null}
       </section>
 
       {about.sections.map((section) => {
