@@ -1,5 +1,5 @@
 /* ==========================================================================
-   DA'QTAD — Kfans District
+   DA'QTAD - Kfans District
    Colors are declared twice: a hex fallback first, then the wider-gamut
    oklch version for browsers that support it.
    ========================================================================== */
@@ -717,7 +717,7 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
   padding: 24px;
   background: rgba(24, 19, 32, 0.92);
 }
-.lightbox[open] { display: flex; }
+.lightbox[data-open] { display: flex; }
 
 .lightbox img {
   max-width: min(1100px, 92vw);
@@ -1183,15 +1183,19 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
 
 /* ---------------------------------------------------------------- about -- */
 
-.about-intro {
-  display: flex;
+.about-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.95fr);
   gap: 40px;
-  flex-wrap: wrap;
   align-items: center;
 }
-.about-intro__text { flex: 1; min-width: 300px; }
-.about-intro__text p { font-size: 16px; line-height: 1.75; color: var(--ink-2); margin: 0 0 14px; }
-.about-intro__text strong { color: var(--ink); }
+.about-hero__text p {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink-2);
+  margin: 0 0 14px;
+}
+.about-hero__text strong { color: var(--ink); }
 
 .about-pronounce {
   font-weight: 600;
@@ -1200,11 +1204,38 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
   white-space: nowrap;
 }
 
-.about-intro__photo {
-  width: 340px;
-  height: 340px;
-  flex: none;
-  border-radius: var(--r-lg);
+.about-pronounce-line {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  margin: -4px 0 18px;
+}
+
+.about-mosaic {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-rows: 1.1fr 0.9fr;
+  gap: 12px;
+  min-height: 420px;
+}
+.about-mosaic__cell {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-height: 0;
+}
+.about-mosaic__cell--1 { grid-row: 1 / 3; }
+.about-mosaic__cell .media { height: 100%; min-height: 160px; }
+
+.about-band {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.about-band--spaced { margin-top: 28px; }
+.about-band__shot {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--r-md);
   overflow: hidden;
 }
 
@@ -1237,32 +1268,46 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
 
 /* --------------------------------------------------------------- extras -- */
 
-.extras-feature {
+.extras-toc {
   display: flex;
-  gap: 36px;
   flex-wrap: wrap;
-  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
 }
-.extras-feature--flip { flex-direction: row-reverse; }
-
-.extras-feature__media {
-  width: min(380px, 100%);
-  aspect-ratio: 4 / 3;
-  flex: none;
-  border-radius: var(--r-lg);
-  overflow: hidden;
-}
-
-.extras-feature__text {
-  flex: 1;
-  min-width: 280px;
-}
-.extras-feature__text .eyebrow {
-  display: block;
-  margin-bottom: 8px;
+.extras-toc a {
+  font-weight: 800;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: var(--pill);
+  background: var(--violet-050);
   color: var(--violet-strong);
 }
-.extras-feature__text .h2 { margin-bottom: 12px; }
+.extras-toc a:hover {
+  background: var(--dark);
+  color: #fff;
+}
+
+.extras-article {
+  scroll-margin-top: 24px;
+  padding-top: 40px;
+  border-top: 1.5px solid var(--line);
+}
+.extras-article__head { max-width: 68ch; margin-bottom: 8px; }
+.extras-article__head .eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--violet-strong);
+}
+.extras-article__title {
+  font-size: clamp(28px, 4vw, 40px);
+  margin-bottom: 16px;
+}
+.extras-article__block { margin-top: 28px; }
+.extras-article__block .h3 { margin-bottom: 14px; }
+
+.about-section-media { margin-top: 24px; }
+
+.about-section-media { margin-top: 24px; }
 
 .map-frame {
   background: var(--surface);
@@ -1374,9 +1419,17 @@ h1, h2, h3 { font-family: var(--display); margin: 0; }
   .setlist--full .setlist-body { padding: 16px 18px 20px; }
   .setlist-search { max-width: none; }
 
-  .about-intro__photo { width: 100%; height: auto; aspect-ratio: 1 / 1; }
-
-  .extras-feature__media { width: 100%; }
+  .about-hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .about-mosaic {
+    min-height: 0;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  .about-mosaic__cell--1 { grid-row: auto; }
+  .about-mosaic__cell { aspect-ratio: 4 / 3; }
 
   .lightbox__btn--prev { left: 8px; }
   .lightbox__btn--next { right: 8px; }

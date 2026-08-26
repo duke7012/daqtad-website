@@ -79,6 +79,8 @@ export function AdminTabs({ tab }: { tab: string }) {
   const tabs = [
     ["events", "Events"],
     ["songs", "Song library"],
+    ["about", "About"],
+    ["extras", "Extras"],
     ["faqs", "FAQ"],
     ["requests", "Requests"],
     ["settings", "Settings"],

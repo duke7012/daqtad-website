@@ -39,7 +39,7 @@ export function SongRequestPanel({
               id="req-time"
               name="time"
               type="text"
-              placeholder="Timestamp — which part? (e.g. 1:05–1:35, chorus)"
+              placeholder="Timestamp - which part? (e.g. 1:05–1:35, chorus)"
             />
             <label className="visually-hidden" htmlFor="req-link">
               Reference link
@@ -48,7 +48,7 @@ export function SongRequestPanel({
               id="req-link"
               name="link"
               type="url"
-              placeholder="Link — dance practice video preferred (optional)"
+              placeholder="Link - dance practice video preferred (optional)"
             />
             <button className="btn btn--primary" type="submit" disabled={sending}>
               {sending ? "Sending…" : "Send request →"}
@@ -64,7 +64,7 @@ export function SongRequestPanel({
           Requested so far <span className="count-badge">{requests.length}</span>
         </h3>
         {!requests.length ? (
-          <div className="notice notice--plain">No requests yet — be the first! ✨</div>
+          <div className="notice notice--plain">No requests yet - be the first! ✨</div>
         ) : (
           <div className="request-list">
             {requests.map((req, i) => {
@@ -75,7 +75,7 @@ export function SongRequestPanel({
                   <div className="request__top">
                     <div>
                       <span className="request__song">{req.song}</span>{" "}
-                      <span className="request__artist">— {req.artist}</span>
+                      <span className="request__artist">- {req.artist}</span>
                     </div>
                   </div>
                   <div className="request__meta">

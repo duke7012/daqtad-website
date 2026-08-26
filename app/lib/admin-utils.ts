@@ -59,7 +59,7 @@ export function parseSongLines(text: string): { title: string; artist: string }[
     .filter(Boolean)
     .map((line) => {
       const cleaned = line.replace(/^\d+\s*[.)\]:-]\s*/, "");
-      const parts = cleaned.split(/\s+[—–|]\s+|\s+-\s+|\t+/);
+      const parts = cleaned.split(/\s+[\u2014\u2013|\-]\s+|\s+-\s+|\t+/);
       if (parts.length >= 2) {
         return { title: parts[0].trim(), artist: parts.slice(1).join(" - ").trim() };
       }

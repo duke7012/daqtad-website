@@ -26,7 +26,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 export function meta() {
   return pageMeta({
-    title: "Spin-Off (Pop-Up) — Bopsim Korean Festival · DA'QTAD",
+    title: "Spin-Off (Pop-Up) - Bopsim Korean Festival · DA'QTAD",
     description:
       "DA'QTAD Spin-Off (Pop-Up) at the Bopsim Korean Festival. Friday, Sep 11 2026, University of Utah, Salt Lake City. Free entry, and song requests are open.",
     path: "/events/popup",
@@ -38,7 +38,7 @@ export function meta() {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Event",
-  name: "DA'QTAD Spin-Off (Pop-Up) — Bopsim Korean Festival",
+  name: "DA'QTAD Spin-Off (Pop-Up) - Bopsim Korean Festival",
   startDate: "2026-09-11T16:00:00-06:00",
   endDate: "2026-09-11T21:00:00-06:00",
   eventStatus: "https://schema.org/EventScheduled",
@@ -53,7 +53,7 @@ const jsonLd = {
       addressCountry: "US",
     },
   },
-  organizer: { "@type": "Organization", name: "DA'QTAD — Kfans District" },
+  organizer: { "@type": "Organization", name: "DA'QTAD - Kfans District" },
   offers: {
     "@type": "Offer",
     price: "0",
@@ -94,7 +94,7 @@ export default function EventPopup({ loaderData }: Route.ComponentProps) {
               <br />
               📍 Bopsim Korean Festival, University of Utah, Salt Lake City, UT
               <br />
-              🎟 Free — just show up and dance!
+              🎟 Free - just show up and dance!
             </p>
             <Countdown target={event?.startsAt || "2026-09-11T16:00:00-06:00"} modifier="countdown--light" />
             {event ? <EventHeroButtons event={event} social={social} /> : null}
@@ -105,7 +105,7 @@ export default function EventPopup({ loaderData }: Route.ComponentProps) {
       {event ? (
         <section className="section section--narrow">
           <h2 className="h2">Videos 🎬</h2>
-          <VideoStack event={event} />
+          <VideoStack video={event.video} title={event.title} />
         </section>
       ) : null}
 
@@ -114,7 +114,7 @@ export default function EventPopup({ loaderData }: Route.ComponentProps) {
           <SongRequestPanel
             event={event}
             requests={requests}
-            note="Want your bias's song in the Pop-Up playlist? Drop it here — we pick the most-requested ones."
+            note="Want your bias's song in the Pop-Up playlist? Drop it here - we pick the most-requested ones."
           />
         </section>
       ) : null}

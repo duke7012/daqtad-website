@@ -25,7 +25,7 @@ function InstagramTile({ item }: { item: InstagramPhoto }) {
       href={item.href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={item.caption ? `${item.caption} — view on Instagram` : "View on Instagram"}
+      aria-label={item.caption ? `${item.caption} - view on Instagram` : "View on Instagram"}
       title={item.caption || undefined}
     >
       <img

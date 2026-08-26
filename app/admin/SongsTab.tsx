@@ -82,7 +82,7 @@ export function SongsTab({ songs }: { songs: AdminSong[] }) {
           </span>
         </div>
         <p className="admin-hint">
-          The pool every setlist draws from. Click a title or artist to edit — it updates everywhere that song appears.
+          The pool every setlist draws from. Click a title or artist to edit - it updates everywhere that song appears.
           Deleting one removes it from every setlist.
         </p>
         <div className="song-lib__tools">
@@ -161,12 +161,12 @@ export function SongsTab({ songs }: { songs: AdminSong[] }) {
       <details className="admin-card">
         <summary className="song-lib__import">Import many at once</summary>
         <p className="admin-hint">
-          One per line, as <code>Title — Artist</code>. Duplicates are skipped.
+          One per line, as <code>Title - Artist</code>. Duplicates are skipped.
         </p>
         <Form method="post">
           <label className="admin-field">
             <span>Songs</span>
-            <textarea name="bulk_songs" placeholder={"Whiplash — aespa\nMagnetic — ILLIT"} />
+            <textarea name="bulk_songs" placeholder={"Whiplash - aespa\nMagnetic - ILLIT"} />
           </label>
           <div className="admin-actions">
             <button className="btn btn--primary" type="submit" name="intent" value="songs-import">

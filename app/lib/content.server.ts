@@ -1,7 +1,21 @@
 import { parsePageSections } from "~/lib/event-sections";
 import { sampleSite } from "~/lib/fallback.server";
+import {
+  extraPhotos,
+  sampleAboutContent,
+  sampleExtrasContent,
+} from "~/lib/pages";
 import { getConfig, isConfigured, rest, withTimeout } from "~/lib/supabase.server";
-import type { EventItem, Faq, SiteData } from "~/types";
+import type {
+  AboutPageContent,
+  AboutSection,
+  EventItem,
+  ExtraProject,
+  ExtrasPageContent,
+  Faq,
+  Photo,
+  SiteData,
+} from "~/types";
 
 interface DbSong {
   title: string;
@@ -67,6 +81,51 @@ interface DbFaq {
 interface DbSettings {
   instagram?: string;
   facebook?: string;
+  about_title?: string;
+  about_pronunciation?: string;
+  about_intro?: string;
+  about_mosaic_photos?: string;
+  about_vietnam_photos?: string;
+  about_utah_photos?: string;
+  extras_title?: string;
+  extras_intro?: string;
+}
+
+interface DbAboutSection {
+  id: string;
+  heading: string;
+  body: string;
+  mission?: string;
+  closing?: string;
+  link_label?: string;
+  link_href?: string;
+  videos?: string;
+  position?: number;
+}
+
+interface DbExtraProject {
+  id: string;
+  slug: string;
+  title: string;
+  eyebrow?: string;
+  body?: string;
+  videos?: string;
+  photo_count?: number;
+  position?: number;
+}
+
+interface DbAboutPhoto {
+  section_id: string;
+  url: string;
+  alt?: string;
+  position?: number;
+}
+
+interface DbExtraPhoto {
+  project_id: string;
+  url: string;
+  alt?: string;
+  position?: number;
 }
 
 function byPosition(a: { position?: number }, b: { position?: number }) {
@@ -104,7 +163,7 @@ function timeLabel(startIso?: string, endIso?: string, timezone?: string): strin
 }
 
 function mapEvent(row: DbEvent): EventItem {
-  const title = row.name + (row.subtitle ? ` — ${row.subtitle}` : "");
+  const title = row.name + (row.subtitle ? ` · ${row.subtitle}` : "");
   const rounds = (row.rounds || [])
     .slice()
     .sort(byPosition)
@@ -122,7 +181,7 @@ function mapEvent(row: DbEvent): EventItem {
     .sort(byPosition)
     .map((photo, i) => ({
       src: photo.url,
-      alt: photo.alt || `${title} — photo ${i + 1}`,
+      alt: photo.alt || `${title} photo ${i + 1}`,
     }));
 
   return {
@@ -206,7 +265,7 @@ export async function loadSite(): Promise<SiteData> {
     return await withTimeout(loadFromDatabase());
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.warn("[daqtad] using sample content —", message);
+    console.warn("[daqtad] using sample content -", message);
     return sampleSite();
   }
 }
@@ -215,16 +274,156 @@ export function getEvent(site: SiteData, slug: string): EventItem | undefined {
   return site.events.find((ev) => ev.slug === slug);
 }
 
-export function upcomingEvent(site: SiteData): EventItem | undefined {
-  return site.events.find((ev) => ev.status === "upcoming");
+/** True while admin marked upcoming and the start time is still in the future. */
+export function isLiveUpcoming(event: EventItem, now = Date.now()): boolean {
+  if (event.status !== "upcoming") return false;
+  if (!event.startsAt) return true;
+  const start = new Date(event.startsAt).getTime();
+  if (Number.isNaN(start)) return true;
+  return start > now;
 }
 
-export function pastEvents(site: SiteData): EventItem[] {
-  return site.events.filter((ev) => ev.status !== "upcoming");
+export function upcomingEvents(site: SiteData, now = Date.now()): EventItem[] {
+  return site.events
+    .filter((ev) => isLiveUpcoming(ev, now))
+    .slice()
+    .sort((a, b) => {
+      const aTime = a.startsAt ? new Date(a.startsAt).getTime() : Number.POSITIVE_INFINITY;
+      const bTime = b.startsAt ? new Date(b.startsAt).getTime() : Number.POSITIVE_INFINITY;
+      return aTime - bTime;
+    });
+}
+
+export function upcomingEvent(site: SiteData, now = Date.now()): EventItem | undefined {
+  return upcomingEvents(site, now)[0];
+}
+
+export function pastEvents(site: SiteData, now = Date.now()): EventItem[] {
+  return site.events.filter((ev) => !isLiveUpcoming(ev, now));
 }
 
 export function formspreeEndpoint(): string {
   return sampleSite().requests.endpoint;
+}
+
+function mapAboutSection(row: DbAboutSection, photos: Photo[]): AboutSection {
+  return {
+    id: row.id,
+    heading: row.heading || "",
+    body: row.body || "",
+    mission: row.mission || "",
+    closing: row.closing || "",
+    linkLabel: row.link_label || "",
+    linkHref: row.link_href || "",
+    videos: row.videos || "",
+    photos,
+  };
+}
+
+function mapExtraProject(row: DbExtraProject, photos: Photo[]): ExtraProject {
+  const project = {
+    id: row.id,
+    slug: row.slug || row.id,
+    title: row.title || "",
+    eyebrow: row.eyebrow || "",
+    body: row.body || "",
+    videos: row.videos || "",
+    photoCount: Number(row.photo_count) || 0,
+    photos,
+  };
+  if (!project.photos.length && project.photoCount > 0) {
+    project.photos = extraPhotos(project);
+  }
+  return project;
+}
+
+function buildAbout(
+  settings: DbSettings | undefined,
+  sections: DbAboutSection[],
+  photoRows: DbAboutPhoto[],
+): AboutPageContent {
+  const sample = sampleAboutContent();
+  const bySection = new Map<string, Photo[]>();
+  for (const row of photoRows.slice().sort(byPosition)) {
+    const list = bySection.get(row.section_id) || [];
+    list.push({
+      src: row.url,
+      alt: row.alt || "About photo",
+    });
+    bySection.set(row.section_id, list);
+  }
+  return {
+    title: settings?.about_title || sample.title,
+    pronunciation: settings?.about_pronunciation || sample.pronunciation,
+    intro: settings?.about_intro || sample.intro,
+    sections: sections.length
+      ? sections.map((row) => mapAboutSection(row, bySection.get(row.id) || []))
+      : sample.sections,
+  };
+}
+
+function buildExtras(
+  settings: DbSettings | undefined,
+  projects: DbExtraProject[],
+  photoRows: DbExtraPhoto[],
+): ExtrasPageContent {
+  const sample = sampleExtrasContent();
+  const byProject = new Map<string, Photo[]>();
+  for (const row of photoRows.slice().sort(byPosition)) {
+    const list = byProject.get(row.project_id) || [];
+    list.push({
+      src: row.url,
+      alt: row.alt || "Extras photo",
+    });
+    byProject.set(row.project_id, list);
+  }
+  return {
+    title: settings?.extras_title || sample.title,
+    intro: settings?.extras_intro || sample.intro,
+    projects: projects.length
+      ? projects.map((row) => mapExtraProject(row, byProject.get(row.id) || []))
+      : sample.projects,
+  };
+}
+
+async function loadAboutFromDatabase(): Promise<AboutPageContent> {
+  const [settingRows, sectionRows, photoRows] = await Promise.all([
+    rest<DbSettings[]>("site_settings?select=*&limit=1"),
+    rest<DbAboutSection[]>("about_sections?select=*&order=position.asc"),
+    rest<DbAboutPhoto[]>("about_photos?select=*&order=position.asc").catch(() => [] as DbAboutPhoto[]),
+  ]);
+  return buildAbout(settingRows?.[0], sectionRows || [], photoRows || []);
+}
+
+async function loadExtrasFromDatabase(): Promise<ExtrasPageContent> {
+  const [settingRows, projectRows, photoRows] = await Promise.all([
+    rest<DbSettings[]>("site_settings?select=*&limit=1"),
+    rest<DbExtraProject[]>("extras_projects?select=*&order=position.asc"),
+    rest<DbExtraPhoto[]>("extras_photos?select=*&order=position.asc").catch(() => [] as DbExtraPhoto[]),
+  ]);
+  return buildExtras(settingRows?.[0], projectRows || [], photoRows || []);
+}
+
+export async function loadAboutPage(): Promise<AboutPageContent> {
+  if (!isConfigured()) return sampleAboutContent();
+  try {
+    return await withTimeout(loadAboutFromDatabase());
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("[daqtad] using sample about content -", message);
+    return sampleAboutContent();
+  }
+}
+
+export async function loadExtrasPage(): Promise<ExtrasPageContent> {
+  if (!isConfigured()) return sampleExtrasContent();
+  try {
+    return await withTimeout(loadExtrasFromDatabase());
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("[daqtad] using sample extras content -", message);
+    return sampleExtrasContent();
+  }
 }
 
 export { getConfig, isConfigured };

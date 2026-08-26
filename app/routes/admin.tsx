@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { data, redirect } from "react-router";
+import { AboutTab } from "~/admin/AboutTab";
 import { EventEditor } from "~/admin/EventEditor";
 import { EventsTab } from "~/admin/EventsTab";
+import { ExtrasTab } from "~/admin/ExtrasTab";
 import { FaqsTab } from "~/admin/FaqsTab";
 import { AdminTabs, Field, Status } from "~/admin/fields";
 import { RequestsTab } from "~/admin/RequestsTab";
@@ -11,12 +13,20 @@ import { SongsTab } from "~/admin/SongsTab";
 import { BrandLogo } from "~/components/BrandLogo";
 import { parsePageSections } from "~/lib/event-sections";
 import {
+  addAboutPhotos,
+  addAboutSection,
+  addExtraPhotos,
+  addExtraProject,
   addFaq,
   addPhotos,
   addRound,
   addSong,
   addSongsToRound,
+  deleteAboutPhoto,
+  deleteAboutSection,
   deleteEvent,
+  deleteExtraPhoto,
+  deleteExtraProject,
   deleteFaq,
   deletePhoto,
   deleteRequest,
@@ -24,7 +34,11 @@ import {
   deleteSong,
   ensureSongs,
   getSettings,
+  listAboutPhotos,
+  listAboutSections,
   listEvents,
+  listExtraPhotos,
+  listExtraProjects,
   listFaqs,
   listRequestsFor,
   listSongs,
@@ -38,6 +52,10 @@ import {
   saveSettings,
   swapPositions,
   toIso,
+  updateAboutPhotoAlt,
+  updateAboutSection,
+  updateExtraPhotoAlt,
+  updateExtraProject,
   updateFaq,
   updatePhotoAlt,
   updateSong,
@@ -47,7 +65,11 @@ import { getUser, isAdmin, mergeHeaders, signIn, signOut } from "~/lib/auth.serv
 import { isConfigured } from "~/lib/content.server";
 import { pageMeta } from "~/lib/meta";
 import type {
+  AdminAboutPhoto,
+  AdminAboutSection,
   AdminEvent,
+  AdminExtraPhoto,
+  AdminExtraProject,
   AdminFaq,
   AdminPhoto,
   AdminRequestRow,
@@ -77,7 +99,7 @@ function eventPayload(form: FormData) {
   const zone = str(form, "timezone") || "America/Denver";
   const date = str(form, "date");
   const status = str(form, "status");
-  // Poster/cover live in a separate form — omit them here so Save event
+  // Poster/cover live in a separate form - omit them here so Save event
   // does not wipe existing image URLs with empty strings.
   return {
     slug: str(form, "slug"),
@@ -130,11 +152,15 @@ export async function loader({ request }: Route.LoaderArgs) {
       return data({ status: "not-admin" as const, email: user.email || "" }, { headers });
     }
 
-    const [events, songs, faqs, settings] = await Promise.all([
+    const [events, songs, faqs, settings, aboutSections, extraProjects, aboutPhotos, extraPhotos] = await Promise.all([
       listEvents(supabase),
       listSongs(supabase),
       listFaqs(supabase),
       getSettings(supabase),
+      listAboutSections(supabase),
+      listExtraProjects(supabase),
+      listAboutPhotos(supabase).catch(() => [] as AdminAboutPhoto[]),
+      listExtraPhotos(supabase).catch(() => [] as AdminExtraPhoto[]),
     ]);
 
     requestsFor = requestsFor || events[0]?.id || "";
@@ -170,6 +196,10 @@ export async function loader({ request }: Route.LoaderArgs) {
         songs,
         faqs,
         settings,
+        aboutSections,
+        extraProjects,
+        aboutPhotos,
+        extraPhotos,
         requests,
         requestsFor,
         event,
@@ -344,6 +374,110 @@ export async function action({ request }: Route.ActionArgs) {
         });
         return ok("Saved ✓");
       }
+      case "about-intro-save": {
+        await saveSettings(supabase, {
+          about_title: str(form, "about_title"),
+          about_pronunciation: str(form, "about_pronunciation"),
+          about_intro: str(form, "about_intro"),
+        });
+        return ok("Saved ✓");
+      }
+      case "about-section-add": {
+        await addAboutSection(supabase, await listAboutSections(supabase));
+        return ok("");
+      }
+      case "about-section-move": {
+        const sections = await listAboutSections(supabase);
+        await swapPositions(supabase, "about_sections", sections, str(form, "id"), Number(str(form, "dir")));
+        return ok("");
+      }
+      case "about-section-delete": {
+        await deleteAboutSection(supabase, str(form, "id"));
+        return ok("Deleted");
+      }
+      case "about-section-edit": {
+        const part = str(form, "part");
+        await updateAboutSection(supabase, str(form, "id"), { [part]: str(form, "value") });
+        return ok("Saved ✓");
+      }
+      case "extras-intro-save": {
+        await saveSettings(supabase, {
+          extras_title: str(form, "extras_title"),
+          extras_intro: str(form, "extras_intro"),
+        });
+        return ok("Saved ✓");
+      }
+      case "extras-project-add": {
+        await addExtraProject(supabase, await listExtraProjects(supabase));
+        return ok("");
+      }
+      case "extras-project-move": {
+        const projects = await listExtraProjects(supabase);
+        await swapPositions(supabase, "extras_projects", projects, str(form, "id"), Number(str(form, "dir")));
+        return ok("");
+      }
+      case "extras-project-delete": {
+        await deleteExtraProject(supabase, str(form, "id"));
+        return ok("Deleted");
+      }
+      case "extras-project-edit": {
+        const part = str(form, "part");
+        const value = str(form, "value");
+        if (part === "photo_count") {
+          await updateExtraProject(supabase, str(form, "id"), { photo_count: Math.max(0, Number(value) || 0) });
+        } else {
+          await updateExtraProject(supabase, str(form, "id"), { [part]: value });
+        }
+        return ok("Saved ✓");
+      }
+      case "about-photo-upload": {
+        const sectionId = str(form, "section_id");
+        if (!sectionId) return ok("Missing section.", { failed: true });
+        const file = form.get("file");
+        if (!(file instanceof File) || !file.size) return ok("Choose a photo.", { failed: true });
+        const url = await uploadFile(supabase, file, "about");
+        const existing = await listAboutPhotos(supabase, sectionId);
+        await addAboutPhotos(supabase, sectionId, [url], existing);
+        return ok("Uploaded ✓");
+      }
+      case "about-photo-move": {
+        const sectionId = str(form, "section_id");
+        const photos = await listAboutPhotos(supabase, sectionId);
+        await swapPositions(supabase, "about_photos", photos, str(form, "id"), Number(str(form, "dir")));
+        return ok("");
+      }
+      case "about-photo-delete": {
+        await deleteAboutPhoto(supabase, str(form, "id"));
+        return ok("Removed");
+      }
+      case "about-photo-alt": {
+        await updateAboutPhotoAlt(supabase, str(form, "id"), str(form, "alt"));
+        return ok("Saved ✓");
+      }
+      case "extras-photo-upload": {
+        const projectId = str(form, "project_id");
+        if (!projectId) return ok("Missing project.", { failed: true });
+        const file = form.get("file");
+        if (!(file instanceof File) || !file.size) return ok("Choose a photo.", { failed: true });
+        const url = await uploadFile(supabase, file, "extras");
+        const existing = await listExtraPhotos(supabase, projectId);
+        await addExtraPhotos(supabase, projectId, [url], existing);
+        return ok("Uploaded ✓");
+      }
+      case "extras-photo-move": {
+        const projectId = str(form, "project_id");
+        const photos = await listExtraPhotos(supabase, projectId);
+        await swapPositions(supabase, "extras_photos", photos, str(form, "id"), Number(str(form, "dir")));
+        return ok("");
+      }
+      case "extras-photo-delete": {
+        await deleteExtraPhoto(supabase, str(form, "id"));
+        return ok("Removed");
+      }
+      case "extras-photo-alt": {
+        await updateExtraPhotoAlt(supabase, str(form, "id"), str(form, "alt"));
+        return ok("Saved ✓");
+      }
       case "photo-move": {
         const detail = await loadEventDetail(supabase, str(form, "event_id"));
         await swapPositions(supabase, "photos", detail.photos, str(form, "id"), Number(str(form, "dir")));
@@ -361,7 +495,7 @@ export async function action({ request }: Route.ActionArgs) {
         const file = form.get("file");
         if (!(file instanceof File) || !file.size) return ok("Choose a file.", { failed: true });
         const url = await uploadFile(supabase, file, "events");
-        return ok("Uploaded — now press Save event", { url, target: str(form, "target") });
+        return ok("Uploaded - now press Save event", { url, target: str(form, "target") });
       }
       case "upload-photos": {
         const eventId = str(form, "event_id");
@@ -476,6 +610,10 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
     songs,
     faqs,
     settings,
+    aboutSections,
+    extraProjects,
+    aboutPhotos,
+    extraPhotos,
     requests,
     requestsFor,
     event,
@@ -490,6 +628,10 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
     songs: AdminSong[];
     faqs: AdminFaq[];
     settings: AdminSettings;
+    aboutSections: AdminAboutSection[];
+    extraProjects: AdminExtraProject[];
+    aboutPhotos: AdminAboutPhoto[];
+    extraPhotos: AdminExtraPhoto[];
     requests: AdminRequestRow[];
     requestsFor: string;
     event: Partial<AdminEvent> | null;
@@ -527,6 +669,10 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
           <EventEditor event={event} rounds={rounds} photos={photos} />
         ) : tab === "songs" ? (
           <SongsTab songs={songs} />
+        ) : tab === "about" ? (
+          <AboutTab settings={settings} sections={aboutSections} aboutPhotos={aboutPhotos} />
+        ) : tab === "extras" ? (
+          <ExtrasTab settings={settings} projects={extraProjects} extraPhotos={extraPhotos} />
         ) : tab === "faqs" ? (
           <FaqsTab faqs={faqs} />
         ) : tab === "requests" ? (

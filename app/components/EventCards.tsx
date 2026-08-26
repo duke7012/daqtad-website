@@ -3,7 +3,13 @@ import { Media } from "~/components/Media";
 import { eventHref, rooted } from "~/lib/urls";
 import type { EventItem } from "~/types";
 
-export function NextEventCard({ event }: { event: EventItem }) {
+export function NextEventCard({
+  event,
+  onEnded,
+}: {
+  event: EventItem;
+  onEnded?: () => void;
+}) {
   const banner = rooted(event.banner);
 
   return (
@@ -24,7 +30,7 @@ export function NextEventCard({ event }: { event: EventItem }) {
           <div className="next-card__cta">VIEW EVENT →</div>
         ) : null}
       </div>
-      {event.startsAt ? <Countdown target={event.startsAt} /> : null}
+      {event.startsAt ? <Countdown target={event.startsAt} onDone={onEnded} /> : null}
     </a>
   );
 }
@@ -44,7 +50,9 @@ export function EventCard({ event }: { event: EventItem }) {
 }
 
 export function EventRow({ event }: { event: EventItem }) {
-  const upcoming = event.status === "upcoming";
+  const start = event.startsAt ? new Date(event.startsAt).getTime() : NaN;
+  const upcoming =
+    event.status === "upcoming" && (Number.isNaN(start) || start > Date.now());
   return (
     <a className={`event-row${upcoming ? " event-row--featured" : ""}`} href={eventHref(event)}>
       <div className="event-row__media">

@@ -13,7 +13,7 @@ export async function loader() {
 
 export function meta() {
   return pageMeta({
-    title: "Setlists — DA'QTAD Kfans District",
+    title: "Setlists - DA'QTAD Kfans District",
     description: "Every round of every DA'QTAD K-pop random play dance, song by song.",
     path: "/setlists",
   });
@@ -33,7 +33,7 @@ export default function Setlists({ loaderData }: Route.ComponentProps) {
         {loaderData.events.map((ev) => (
           <article className="setlist-card" key={ev.slug}>
             <div className="setlist-card__head">
-              <h2>{ev.subtitle ? `${ev.name} — ${ev.subtitle}` : ev.title}</h2>
+              <h2>{ev.subtitle ? `${ev.name} - ${ev.subtitle}` : ev.title}</h2>
               <span className="setlist-card__meta">
                 {ev.monthLabel || ev.dateLabel} · {ev.rounds.length} rounds · {totalSongs(ev)} songs
               </span>

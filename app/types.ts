@@ -145,10 +145,94 @@ export interface AdminFaq {
   position: number;
 }
 
+export interface AdminAboutSection {
+  id: string;
+  heading: string;
+  body: string;
+  mission: string;
+  closing: string;
+  link_label: string;
+  link_href: string;
+  photo_band: string;
+  videos: string;
+  position: number;
+}
+
+export interface AdminAboutPhoto {
+  id: string;
+  section_id: string;
+  url: string;
+  alt: string | null;
+  position: number;
+}
+
+export interface AdminExtraProject {
+  id: string;
+  slug: string;
+  title: string;
+  eyebrow: string;
+  body: string;
+  videos: string;
+  photo_count: number;
+  position: number;
+}
+
+export interface AdminExtraPhoto {
+  id: string;
+  project_id: string;
+  url: string;
+  alt: string | null;
+  position: number;
+}
+
 export interface AdminSettings {
   id?: boolean;
   instagram?: string;
   facebook?: string;
+  about_title?: string;
+  about_pronunciation?: string;
+  about_intro?: string;
+  about_mosaic_photos?: string;
+  about_vietnam_photos?: string;
+  about_utah_photos?: string;
+  extras_title?: string;
+  extras_intro?: string;
+}
+
+export interface AboutSection {
+  id: string;
+  heading: string;
+  body: string;
+  mission: string;
+  closing: string;
+  linkLabel: string;
+  linkHref: string;
+  videos: string;
+  photos: Photo[];
+}
+
+export interface AboutPageContent {
+  title: string;
+  pronunciation: string;
+  intro: string;
+  sections: AboutSection[];
+}
+
+export interface ExtraProject {
+  id: string;
+  slug: string;
+  title: string;
+  eyebrow: string;
+  body: string;
+  videos: string;
+  photoCount: number;
+  photos: Photo[];
+}
+
+export interface ExtrasPageContent {
+  title: string;
+  intro: string;
+  projects: ExtraProject[];
 }
 
 export interface AdminRequestRow {

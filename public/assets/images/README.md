@@ -1,10 +1,10 @@
 # Images
 
 Drop your photos in here using these exact filenames. Anything missing just
-shows a labelled placeholder box on the site — nothing breaks.
+shows a labelled placeholder box on the site - nothing breaks.
 
 JPG is expected (`.jpg`). If you'd rather use `.png` or `.webp`, change the
-filename in `assets/js/data.js` to match.
+filename in the matching route / content file to match.
 
 ## Site-wide
 
@@ -12,27 +12,34 @@ filename in `assets/js/data.js` to match.
 | --- | --- | --- |
 | `homepage_background.mp4` | Home page hero background video (muted, loops) | 1600 × 900 |
 | `hero.jpg` | Hero still (poster + reduced-motion fallback) | 1600 × 900, landscape |
-| `about-group.jpg` | About page group photo | 800 × 800, square |
 | `og-cover.jpg` | Link preview when the site is shared | 1200 × 630 |
 
-## Extras — `assets/images/extras/`
+## About - `assets/images/about/`
+
+Prefer uploading from **Admin → About** (hero mosaic, Vietnam band, Utah band).
+Legacy static defaults still work if no uploads exist yet:
 
 | File | Used on | Suggested size |
 | --- | --- | --- |
-| `charity-chua-phat-minh.jpg` | Extras — charity visit | 1200 × 900, landscape |
-| `the-100-project.jpg` | Extras — The 100 Project | 1200 × 900, landscape |
-| `radionair.jpg` | Extras — radiONair | 1200 × 900, landscape |
+| `mosaic-01.jpg` … `mosaic-04.jpg` | About hero mosaic fallback | 1200 × 900+ |
+| `vietnam-01.jpg` … `vietnam-03.jpg` | Vietnam band fallback | 1200 × 900 |
+| `utah-01.jpg` … `utah-03.jpg` | Utah band fallback | 1200 × 900 |
 
-## Events — `assets/images/events/`
+## Extras
+
+Upload photos per project from **Admin → Extras**. They are stored in Supabase
+Storage and shown on that project’s article.
+
+## Events - `assets/images/events/`
 
 Two images per event:
 
-- `popup-poster.jpg` — the event poster, portrait 4:5 (e.g. 1080 × 1350)
-- `popup-cover.jpg` — a wide photo for the event cards, 16:9
+- `popup-poster.jpg` - the event poster, portrait 4:5 (e.g. 1080 × 1350)
+- `popup-cover.jpg` - a wide photo for the event cards, 16:9
 
 Same pattern for `rpd-ut2`, `rpd-ut1`, `rdd-6`, and so on.
 
-## Gallery — `assets/images/gallery/`
+## Gallery - `assets/images/gallery/`
 
 Numbered per event, starting at 01:
 

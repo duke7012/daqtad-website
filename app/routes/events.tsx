@@ -10,7 +10,7 @@ export async function loader() {
 
 export function meta() {
   return pageMeta({
-    title: "All events — DA'QTAD Kfans District",
+    title: "All events - DA'QTAD Kfans District",
     description: "Every DA'QTAD K-pop random play dance so far, newest first. Photos, videos and full setlists for each event.",
     path: "/events",
   });
@@ -22,7 +22,7 @@ export default function Events({ loaderData }: Route.ComponentProps) {
       <section className="section">
         <h1 className="h1">All events</h1>
         <p className="lede">
-          Every DA'QTAD random play dance so far — newest first. Tap one for photos, videos and the full setlist.
+          Every DA'QTAD random play dance so far - newest first. Tap one for photos, videos and the full setlist.
         </p>
       </section>
       <section className="section section--last">

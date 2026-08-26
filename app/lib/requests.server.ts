@@ -52,11 +52,11 @@ export async function addRequest(
           link: entry.link,
         },
       });
-      return { ok: true, message: "Requested! 💜 Thanks — we read every one." };
+      return { ok: true, message: "Requested! 💜 Thanks - we read every one." };
     } catch {
       return {
         ok: false,
-        message: "Could not send right now — please DM us on Instagram instead.",
+        message: "Could not send right now - please DM us on Instagram instead.",
         failed: true,
       };
     }
@@ -66,7 +66,7 @@ export async function addRequest(
   if (!endpoint) {
     return {
       ok: false,
-      message: "Could not send right now — please DM us on Instagram instead.",
+      message: "Could not send right now - please DM us on Instagram instead.",
       failed: true,
     };
   }
@@ -84,11 +84,11 @@ export async function addRequest(
       body,
     });
     if (!response.ok) throw new Error("Request failed");
-    return { ok: true, message: "Requested! 💜 Thanks — we read every one." };
+    return { ok: true, message: "Requested! 💜 Thanks - we read every one." };
   } catch {
     return {
       ok: false,
-      message: "Could not send right now — please DM us on Instagram instead.",
+      message: "Could not send right now - please DM us on Instagram instead.",
       failed: true,
     };
   }

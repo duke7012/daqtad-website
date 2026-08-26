@@ -1,9 +1,17 @@
 import { youtubeIds } from "~/lib/urls";
-import type { EventItem } from "~/types";
 
-export function VideoStack({ event }: { event: EventItem }) {
-  const ids = youtubeIds(event.video);
+export function VideoStack({
+  video,
+  title,
+  showEmpty = true,
+}: {
+  video: string;
+  title: string;
+  showEmpty?: boolean;
+}) {
+  const ids = youtubeIds(video);
   if (!ids.length) {
+    if (!showEmpty) return null;
     return (
       <div className="video-frame">
         <div className="video-frame__empty">
@@ -18,7 +26,7 @@ export function VideoStack({ event }: { event: EventItem }) {
   return (
     <div className="video-stack">
       {ids.map((id, i) => {
-        const label = ids.length === 1 ? `${event.title} video` : `${event.title} video ${i + 1}`;
+        const label = ids.length === 1 ? `${title} video` : `${title} video ${i + 1}`;
         return (
           <div className="video-frame" key={id}>
             <iframe

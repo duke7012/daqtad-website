@@ -17,9 +17,11 @@ function parts(target: string) {
 export function Countdown({
   target,
   modifier = "",
+  onDone,
 }: {
   target: string;
   modifier?: string;
+  onDone?: () => void;
 }) {
   const [time, setTime] = useState(() => parts(target));
 
@@ -28,6 +30,10 @@ export function Countdown({
     const id = setInterval(() => setTime(parts(target)), 1000);
     return () => clearInterval(id);
   }, [target]);
+
+  useEffect(() => {
+    if (time.done) onDone?.();
+  }, [time.done, onDone]);
 
   return (
     <div

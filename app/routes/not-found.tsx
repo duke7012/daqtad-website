@@ -8,7 +8,7 @@ export function loader() {
 export function meta() {
   return [
     ...pageMeta({
-      title: "Page not found — DA'QTAD",
+      title: "Page not found - DA'QTAD",
       description: "This page could not be found.",
       path: "/",
       robots: "noindex",

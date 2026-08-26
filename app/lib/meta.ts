@@ -20,7 +20,7 @@ export function pageMeta(opts: {
     { name: "description", content: opts.description },
     { name: "theme-color", content: "#f6f5fc" },
     { property: "og:type", content: opts.type ?? "website" },
-    { property: "og:site_name", content: "DA'QTAD — Kfans District" },
+    { property: "og:site_name", content: "DA'QTAD - Kfans District" },
     { property: "og:title", content: opts.title },
     { property: "og:description", content: opts.description },
     { property: "og:url", content: url },

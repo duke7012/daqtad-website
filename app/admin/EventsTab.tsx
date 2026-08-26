@@ -29,7 +29,7 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
               <div className="admin-row__main">
                 <div className="admin-row__title">
                   {ev.name}
-                  {ev.subtitle ? ` — ${ev.subtitle}` : ""}
+                  {ev.subtitle ? ` - ${ev.subtitle}` : ""}
                 </div>
                 <div className="admin-row__meta">
                   {ev.status} · {when} · /{ev.slug}

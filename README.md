@@ -1,4 +1,4 @@
-# DA'QTAD — Kfans District
+# DA'QTAD - Kfans District
 
 The website for DA'QTAD, a K-pop random play dance crew in Salt Lake City.
 
@@ -11,7 +11,7 @@ The website for DA'QTAD, a K-pop random play dance crew in Salt Lake City.
 | Content    | a free Supabase project                                              |
 
 React Router 7 (Framework mode) with TypeScript. Pages render on the server.
-All database reads and writes live in `app/lib/*.server.ts` — they never ship
+All database reads and writes live in `app/lib/*.server.ts` - they never ship
 to the browser.
 
 ## Addresses
@@ -29,7 +29,7 @@ There is no `.html` anywhere in the address bar.
 /admin             edit the site
 ```
 
-Adding an event in the admin gives it `/events/<its-slug>` straight away — no
+Adding an event in the admin gives it `/events/<its-slug>` straight away - no
 new file and no deploy. Old `.html` addresses still redirect.
 
 ## Files
@@ -45,7 +45,7 @@ app/
   admin/                  admin tab UI (no database calls)
   styles/                 the original public + admin CSS
 public/
-  assets/images/          images you add by hand (optional — see admin)
+  assets/images/          images you add by hand (optional - see admin)
   world-map.html          the map embedded by the About page
   robots.txt
   sitemap.xml
@@ -74,7 +74,7 @@ npm run typecheck  # generate route types and run tsc
 
 ## Set up the database (about 10 minutes, once)
 
-Until you do this the site still works — it just shows the sample content in
+Until you do this the site still works - it just shows the sample content in
 `app/lib/fallback.server.ts`, and the admin page explains what's missing.
 
 **1. Create the project.** Sign up at <https://supabase.com>, create a new
@@ -84,12 +84,13 @@ project, and pick a region near you. Save the database password somewhere safe.
 paste the whole of `supabase/schema.sql`, and press Run. It creates every
 table, locks them down so only you can write to them, and makes a `media`
 bucket for images. Running it again is safe and leaves your content alone, so
-re-run it whenever the file changes to pick up the newest security rules.
+re-run it whenever the file changes to pick up the newest tables and security
+rules (including About / Extras).
 
 **3. Import the existing content.** New query again, paste `supabase/seed.sql`,
 Run. This loads the song library, the real event setlists (names and
 dates taken from the song-list filenames), and the upcoming Spin-Off
-(Pop-Up) at Bopsim. Only run this once — running it again resets every setlist.
+(Pop-Up) at Bopsim. Only run this once - running it again resets every setlist.
 
 **4. Make yourself the admin.** Go to **Authentication → Users → Add user**,
 and create a user with your email and a password (tick "Auto Confirm User").
@@ -113,7 +114,7 @@ The same two values are also listed under `[build.environment]` in
 `netlify.toml` so a push to `main` keeps working. On Netlify you can override
 them in **Site settings → Environment variables** if you ever rotate the key.
 
-> These two values are public on purpose — the browser never sees them now,
+> These two values are public on purpose - the browser never sees them now,
 > but they are still a publishable key. They are safe because the database
 > only allows reading, apart from song requests, which are accepted only while
 > that event has requests open; every other write is checked against the
@@ -132,7 +133,7 @@ A pull request gets its own preview URL.
 
 ## The domain
 
-`daqtad.org` is registered at Porkbun, and Porkbun keeps control of DNS —
+`daqtad.org` is registered at Porkbun, and Porkbun keeps control of DNS -
 Netlify only serves the site. In Netlify, the domain is added under **Domain
 management → Add a domain**, with `daqtad.org` as the primary domain.
 
@@ -162,43 +163,50 @@ issues the HTTPS certificate automatically once it resolves, and redirects
 ## Editing the site
 
 Open <https://daqtad.org/admin> and sign in. Everything below is editable
-there, and changes appear on the live site as soon as you reload it — no
+there, and changes appear on the live site as soon as you reload it - no
 redeploy.
 
-**Events** — add, edit, delete. Fill in the name, date, time, venue and
+**Events** - add, edit, delete. Fill in the name, date, time, venue and
 whether song requests are open. Every event automatically gets a page at
 `/events/<slug>`, so adding an event never means adding a file. (The "Custom
 page" box exists for the two hand-written pages; leave it blank.)
 
-**Rounds and setlists** — open an event, add a round, then open the round.
+**Rounds and setlists** - open an event, add a round, then open the round.
 The fastest way to load ~100 songs is the **Paste a setlist** box: one song
-per line as `Title — Artist`. Leading numbers like `12.` are ignored, and any
+per line as `Title - Artist`. Leading numbers like `12.` are ignored, and any
 song not already in the library is added to it automatically.
 
 ```
-1. Whiplash — aespa
-2. APT. — ROSÉ & Bruno Mars
-3. How Sweet — NewJeans
+1. Whiplash - aespa
+2. APT. - ROSÉ & Bruno Mars
+3. How Sweet - NewJeans
 ```
 
-**Song library** — the pool every setlist draws from. Search it, fix a typo
+**Song library** - the pool every setlist draws from. Search it, fix a typo
 (which corrects it in every setlist at once), add songs one at a time, or
 import a big list. Deleting a song removes it from every setlist, so be
 careful there.
 
-**Photos** — open an event and upload straight from your phone or laptop.
+**Photos** - open an event and upload straight from your phone or laptop.
 They go to Supabase Storage and show up on the gallery page and that event's
 page. Add a short description to each one for screen readers.
 
-**FAQ and Settings** — the About page questions, and the Instagram / Facebook
+**About** - intro copy, pronunciation, and story sections with per-section photo
+uploads and YouTube links. Empty media stays hidden. The world map and FAQ stay
+separate.
+
+**Extras** - page intro plus project articles (title, slug, body, YouTube
+links, and photo uploads per project).
+
+**FAQ and Settings** - the About page questions, and the Instagram / Facebook
 links used across the site. A Google Drive album is optional on each event.
 
-**Requests** — everything visitors submitted through an event page, newest
+**Requests** - everything visitors submitted through an event page, newest
 first, with a delete button for spam.
 
 ## Adding a new event page by hand
 
-Almost never needed — the admin covers it. But if an event deserves a
+Almost never needed - the admin covers it. But if an event deserves a
 one-off layout like the Pop-Up has:
 
 1. Add a route module under `app/routes/` (copy `events-popup.tsx`).

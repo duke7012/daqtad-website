@@ -51,7 +51,7 @@ export function RequestsTab({
                     {req.artist ? (
                       <span className="admin-row__meta" style={{ display: "inline" }}>
                         {" "}
-                        — {req.artist}
+                        - {req.artist}
                       </span>
                     ) : null}
                   </div>

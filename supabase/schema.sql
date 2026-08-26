@@ -130,6 +130,68 @@ create table if not exists public.site_settings (
 
 insert into public.site_settings (id) values (true) on conflict (id) do nothing;
 
+-- About page intro (singleton fields on site_settings).
+alter table public.site_settings add column if not exists about_title text not null default 'About DA''QTAD';
+alter table public.site_settings add column if not exists about_pronunciation text not null default '/duh-kah-taht/';
+alter table public.site_settings add column if not exists about_intro text not null default '';
+alter table public.site_settings add column if not exists about_mosaic_photos text not null default '';
+alter table public.site_settings add column if not exists about_vietnam_photos text not null default '';
+alter table public.site_settings add column if not exists about_utah_photos text not null default '';
+alter table public.site_settings add column if not exists extras_title text not null default 'Extras';
+alter table public.site_settings add column if not exists extras_intro text not null default '';
+
+-- Story sections on the About page (heading + body, optional mission/closing/link/videos).
+create table if not exists public.about_sections (
+  id          uuid primary key default gen_random_uuid(),
+  heading     text not null default '',
+  body        text not null default '',
+  mission     text not null default '',
+  closing     text not null default '',
+  link_label  text not null default '',
+  link_href   text not null default '',
+  photo_band  text not null default '',
+  videos      text not null default '',
+  position    int not null default 0
+);
+alter table public.about_sections add column if not exists photo_band text not null default '';
+alter table public.about_sections add column if not exists videos text not null default '';
+
+-- Non-RPD community projects on the Extras page.
+create table if not exists public.extras_projects (
+  id          uuid primary key default gen_random_uuid(),
+  slug        text not null default '',
+  title       text not null default '',
+  eyebrow     text not null default '',
+  body        text not null default '',
+  videos      text not null default '',
+  photo_count int not null default 0,
+  position    int not null default 0
+);
+alter table public.extras_projects add column if not exists videos text not null default '';
+alter table public.extras_projects add column if not exists photo_count int not null default 0;
+
+-- Uploaded photos for About story sections.
+create table if not exists public.about_photos (
+  id         uuid primary key default gen_random_uuid(),
+  section_id uuid not null references public.about_sections(id) on delete cascade,
+  url        text not null,
+  alt        text not null default '',
+  position   int not null default 0,
+  created_at timestamptz not null default now()
+);
+create index if not exists about_photos_section_idx on public.about_photos (section_id, position);
+
+-- Uploaded photos for Extras project articles.
+create table if not exists public.extras_photos (
+  id         uuid primary key default gen_random_uuid(),
+  project_id uuid not null references public.extras_projects(id) on delete cascade,
+  url        text not null,
+  alt        text not null default '',
+  position   int not null default 0,
+  created_at timestamptz not null default now()
+);
+create index if not exists extras_photos_project_idx on public.extras_photos (project_id, position);
+
 -- ----------------------------------------------------------- admin access --
 -- Write access is granted only to users listed here, NOT to every logged-in
 -- user. That way the site stays safe even if someone manages to sign up.
@@ -152,22 +214,28 @@ $$;
 
 -- ------------------------------------------------------------------- RLS ---
 
-alter table public.songs         enable row level security;
-alter table public.events        enable row level security;
-alter table public.rounds        enable row level security;
-alter table public.round_songs   enable row level security;
-alter table public.photos        enable row level security;
-alter table public.faqs          enable row level security;
-alter table public.song_requests enable row level security;
-alter table public.site_settings enable row level security;
-alter table public.admins        enable row level security;
+alter table public.songs           enable row level security;
+alter table public.events          enable row level security;
+alter table public.rounds          enable row level security;
+alter table public.round_songs     enable row level security;
+alter table public.photos          enable row level security;
+alter table public.faqs            enable row level security;
+alter table public.song_requests   enable row level security;
+alter table public.site_settings   enable row level security;
+alter table public.about_sections  enable row level security;
+alter table public.extras_projects enable row level security;
+alter table public.about_photos    enable row level security;
+alter table public.extras_photos   enable row level security;
+alter table public.admins          enable row level security;
 
 -- Anyone may read the public content.
 do $$
 declare t text;
 begin
   foreach t in array array['songs', 'events', 'rounds', 'round_songs',
-                           'photos', 'faqs', 'site_settings']
+                           'photos', 'faqs', 'site_settings',
+                           'about_sections', 'extras_projects',
+                           'about_photos', 'extras_photos']
   loop
     execute format('drop policy if exists "public read" on public.%I;', t);
     execute format(

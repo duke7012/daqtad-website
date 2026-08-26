@@ -77,7 +77,7 @@ function PhotoUploadField({ eventId }: { eventId: string }) {
       <label className="admin-field">
         <span>
           Upload photos
-          <small> — large files are compressed automatically</small>
+          <small> - large files are compressed automatically</small>
         </span>
         <input
           ref={inputRef}
@@ -126,7 +126,7 @@ function UploadField({
     <label className="admin-field">
       <span>
         {label}
-        <small> — large files are compressed automatically</small>
+        <small> - large files are compressed automatically</small>
       </span>
       <input
         type="file"
@@ -152,7 +152,7 @@ function UploadField({
         }}
       />
       {busy ? <small>Compressing…</small> : null}
-      {!busy && fetcher.data?.url ? <small>Uploaded — press Save image URLs</small> : null}
+      {!busy && fetcher.data?.url ? <small>Uploaded - press Save image URLs</small> : null}
     </label>
   );
 }
@@ -186,7 +186,7 @@ export function EventEditor({
             label="URL slug"
             name="slug"
             defaultValue={event.slug || ""}
-            hint=" — lowercase, no spaces"
+            hint=" - lowercase, no spaces"
             placeholder="rdd-9"
           />
           <Field
@@ -206,7 +206,7 @@ export function EventEditor({
             label="Badge"
             name="badge"
             defaultValue={event.badge || ""}
-            hint=" — pill on the events page"
+            hint=" - pill on the events page"
             placeholder="Upcoming · requests open"
           />
           <Field label="Link text" name="cta" defaultValue={event.cta || ""} placeholder="Photos · video · setlist →" />
@@ -216,27 +216,27 @@ export function EventEditor({
             name="video"
             defaultValue={event.video || ""}
             type="textarea"
-            hint=" — one YouTube link or ID per line"
+            hint=" - one YouTube link or ID per line"
           />
           <Field
             label="Instagram posts"
             name="instagram_posts"
             defaultValue={event.instagram_posts || ""}
             type="textarea"
-            hint=" — one post URL per line; add “ | caption” to override the hover text"
+            hint=" - one post URL per line; add “ | caption” to override the hover text"
           />
           <Field
             label="Sort order"
             name="position"
             defaultValue={event.position || 0}
             type="number"
-            hint=" — higher shows first"
+            hint=" - higher shows first"
           />
           <Field
             label="Custom page"
             name="page"
             defaultValue={event.page || ""}
-            hint={` — leave blank to use /events/${event.slug || "the-slug"}`}
+            hint={` - leave blank to use /events/${event.slug || "the-slug"}`}
             placeholder="/events/popup"
           />
         </div>
@@ -252,7 +252,7 @@ export function EventEditor({
               name="instagram_url"
               defaultValue={event.instagram_url || ""}
               type="url"
-              hint=" — optional override"
+              hint=" - optional override"
               placeholder="https://instagram.com/…"
             />
             <Field
@@ -260,7 +260,7 @@ export function EventEditor({
               name="facebook_url"
               defaultValue={event.facebook_url || ""}
               type="url"
-              hint=" — optional override"
+              hint=" - optional override"
               placeholder="https://facebook.com/…"
             />
             <Field
@@ -268,7 +268,7 @@ export function EventEditor({
               name="youtube_url"
               defaultValue={event.youtube_url || ""}
               type="url"
-              hint=" — channel or video link"
+              hint=" - channel or video link"
               placeholder="https://youtube.com/…"
             />
             <Field
@@ -276,7 +276,7 @@ export function EventEditor({
               name="drive_url"
               defaultValue={event.drive_url || ""}
               type="url"
-              hint=" — optional photo album"
+              hint=" - optional photo album"
               placeholder="https://drive.google.com/drive/folders/…"
             />
           </div>
@@ -328,7 +328,7 @@ export function EventEditor({
               label="Up next background URL"
               name="banner_url"
               defaultValue={event.banner_url || ""}
-              hint=" — only used on the home Up next card"
+              hint=" - only used on the home Up next card"
             />
           </div>
           <div className="admin-actions">
@@ -342,7 +342,7 @@ export function EventEditor({
           <UploadField label="Upload cover" target="cover_url" />
           <UploadField label="Upload Up next background" target="banner_url" />
         </div>
-        <p className="admin-hint">Uploading fills the URL box — then press <strong>Save image URLs</strong>.</p>
+        <p className="admin-hint">Uploading fills the URL box - then press <strong>Save image URLs</strong>.</p>
       </div>
 
       {event.id ? (

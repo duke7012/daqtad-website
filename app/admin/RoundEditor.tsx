@@ -52,12 +52,12 @@ export function RoundEditor({
         <input type="hidden" name="round_id" value={round.id} />
         <h2 className="h2">Paste a setlist</h2>
         <p className="admin-hint">
-          One song per line, as <code>Title — Artist</code>. Numbering like “12.” is ignored. Songs that are not in the
+          One song per line, as <code>Title - Artist</code>. Numbering like “12.” is ignored. Songs that are not in the
           library yet are added automatically.
         </p>
         <label className="admin-field">
           <span>Songs</span>
-          <textarea name="bulk" placeholder={"Whiplash — aespa\nAPT. — ROSÉ & Bruno Mars\nHow Sweet — NewJeans"} />
+          <textarea name="bulk" placeholder={"Whiplash - aespa\nAPT. - ROSÉ & Bruno Mars\nHow Sweet - NewJeans"} />
         </label>
         <div className="admin-actions">
           <button className="btn btn--primary" type="submit" name="intent" value="bulk-append">
@@ -96,7 +96,7 @@ export function RoundEditor({
                   <input type="hidden" name="round_id" value={round.id} />
                   <input type="hidden" name="song_id" value={song.id} />
                   <button type="submit" name="intent" value="pick-song">
-                    {song.title} <em>— {song.artist}</em>
+                    {song.title} <em>- {song.artist}</em>
                   </button>
                 </Form>
               ))}

@@ -1,7 +1,9 @@
+import { useCallback, useMemo, useState } from "react";
 import { EventCard, NextEventCard } from "~/components/EventCards";
 import { loadSite, pastEvents, upcomingEvent } from "~/lib/content.server";
 import { pageMeta } from "~/lib/meta";
 import { safeHref } from "~/lib/urls";
+import type { EventItem } from "~/types";
 import type { Route } from "./+types/home";
 
 export async function loader() {
@@ -15,7 +17,7 @@ export async function loader() {
 
 export function meta() {
   return pageMeta({
-    title: "DA'QTAD — K-pop Random Play Dance in Salt Lake City",
+    title: "DA'QTAD - K-pop Random Play Dance in Salt Lake City",
     description:
       "DA'QTAD (Kfans District) throws free K-pop random play dance events in Salt Lake City. Browse past RPDs, photos, setlists, and request songs for the next one.",
     path: "/",
@@ -23,9 +25,24 @@ export function meta() {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { next, recent, social } = loaderData;
+  const { next: loadedNext, recent: loadedRecent, social } = loaderData;
+  const [endedSlug, setEndedSlug] = useState<string | null>(null);
+  const onNextEnded = useCallback(() => {
+    if (loadedNext) setEndedSlug(loadedNext.slug);
+  }, [loadedNext]);
+
+  const next = loadedNext && endedSlug !== loadedNext.slug ? loadedNext : null;
+  const recent = useMemo(() => {
+    const list: EventItem[] = [...loadedRecent];
+    if (loadedNext && endedSlug === loadedNext.slug && !list.some((ev) => ev.slug === loadedNext.slug)) {
+      list.unshift(loadedNext);
+    }
+    return list.slice(0, 3);
+  }, [loadedNext, loadedRecent, endedSlug]);
+
   const instagram = safeHref(social.instagram) || "https://instagram.com/daqtad";
   const facebook = safeHref(social.facebook) || "https://fb.com/daqtad";
+  const youtube = "https://www.youtube.com/@daqtad";
 
   return (
     <main id="main">
@@ -64,12 +81,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <span className="accent-violet">Kfans</span> <span className="accent-rose">District</span>
             </h1>
             <p className="hero-text">
-              We throw K-pop random play dance events — and this is our little archive. Relive past RPDs, browse photos
+              We throw K-pop random play dance events, and this is our little archive. Relive past RPDs, browse photos
               and setlists, and request songs for the next one. 💜
             </p>
             <div className="btn-row">
-              <a className="btn btn--primary" href="/events/popup">
-                Next event ↗
+              <a
+                className="icon-link icon-link--light"
+                href={youtube}
+                target="_blank"
+                rel="noopener"
+                title="YouTube"
+                aria-label="Watch DA'QTAD on YouTube"
+              >
+                <span className="icon icon--youtube" aria-hidden="true"></span>
               </a>
               <a
                 className="icon-link icon-link--light"
@@ -98,7 +122,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {next ? (
         <section className="section section--flush">
-          <NextEventCard event={next} />
+          <NextEventCard event={next} onEnded={onNextEnded} />
         </section>
       ) : null}
 

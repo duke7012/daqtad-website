@@ -106,7 +106,7 @@ function eventSectionContent(
         <SongRequestPanel
           event={event}
           requests={requests}
-          note="Want your bias's song in the playlist? Drop it here — we pick the most-requested ones."
+          note="Want your bias's song in the playlist? Drop it here - we pick the most-requested ones."
         />
       );
     case "instagram":
@@ -120,7 +120,7 @@ function eventSectionContent(
       return (
         <>
           <h2 className="h2">Videos 🎬</h2>
-          <VideoStack event={event} />
+          <VideoStack video={event.video} title={event.title} />
         </>
       );
     case "photos":

@@ -38,8 +38,7 @@ export function Lightbox({
       role="dialog"
       aria-modal="true"
       aria-label="Photo viewer"
-      // CSS targets .lightbox[open]; `open` is not a valid div prop in React's types.
-      {...({ open: "" } as object)}
+      data-open=""
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}

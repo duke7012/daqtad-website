@@ -14,7 +14,7 @@ const events: EventItem[] = [
   {
     slug: "popup",
     status: "upcoming",
-    title: "Spin-Off (Pop-Up) — Bopsim Korean Festival",
+    title: "Spin-Off (Pop-Up) - Bopsim Korean Festival",
     name: "Spin-Off (Pop-Up)",
     subtitle: "Bopsim Korean Festival",
     page: "/events/popup",
@@ -39,7 +39,7 @@ const events: EventItem[] = [
   {
     slug: "rpd-ut2",
     status: "past",
-    title: "#RPD_UT2 — Season's Greetings",
+    title: "#RPD_UT2 - Season's Greetings",
     name: "#RPD_UT2",
     subtitle: "Season's Greetings",
     page: "",
@@ -62,7 +62,7 @@ const events: EventItem[] = [
   {
     slug: "rpd-ut1",
     status: "past",
-    title: "#RPD_UT1 — Back To School Fall 2025",
+    title: "#RPD_UT1 - Back To School Fall 2025",
     name: "#RPD_UT1",
     subtitle: "Back To School Fall 2025",
     page: "",
@@ -85,7 +85,7 @@ const events: EventItem[] = [
   {
     slug: "rdd-6",
     status: "past",
-    title: "#RDD6 — DA'COMEBACK",
+    title: "#RDD6 - DA'COMEBACK",
     name: "#RDD6",
     subtitle: "DA'COMEBACK",
     page: "",
@@ -108,7 +108,7 @@ const events: EventItem[] = [
   {
     slug: "antivirus",
     status: "past",
-    title: "Spin-Off — ANTIVIRUS",
+    title: "Spin-Off - ANTIVIRUS",
     name: "Spin-Off",
     subtitle: "ANTIVIRUS",
     page: "",
@@ -131,7 +131,7 @@ const events: EventItem[] = [
   {
     slug: "rdd-5",
     status: "past",
-    title: "#RDD5 — ONE NEW YEAR. ONE ANNIVERSARY.",
+    title: "#RDD5 - ONE NEW YEAR. ONE ANNIVERSARY.",
     name: "#RDD5",
     subtitle: "ONE NEW YEAR. ONE ANNIVERSARY.",
     page: "",
@@ -154,7 +154,7 @@ const events: EventItem[] = [
   {
     slug: "rdd-4",
     status: "past",
-    title: "#RDD4 — Look Back 2019",
+    title: "#RDD4 - Look Back 2019",
     name: "#RDD4",
     subtitle: "Look Back 2019",
     page: "",
@@ -177,7 +177,7 @@ const events: EventItem[] = [
   {
     slug: "rdd-3",
     status: "past",
-    title: "#RDD3 — Back To School",
+    title: "#RDD3 - Back To School",
     name: "#RDD3",
     subtitle: "Back To School",
     page: "",
@@ -200,7 +200,7 @@ const events: EventItem[] = [
   {
     slug: "rdd-2",
     status: "past",
-    title: "#RDD2 — Offline Kpop Fan",
+    title: "#RDD2 - Offline Kpop Fan",
     name: "#RDD2",
     subtitle: "Offline Kpop Fan",
     page: "",
@@ -223,7 +223,7 @@ const events: EventItem[] = [
   {
     slug: "rdd-1",
     status: "past",
-    title: "#RDD1 — Random Dance The Debut in Ben Tre, VN",
+    title: "#RDD1 - Random Dance The Debut in Ben Tre, VN",
     name: "#RDD1",
     subtitle: "Random Dance The Debut in Ben Tre, VN",
     page: "",
@@ -252,7 +252,7 @@ const faqs: Faq[] = [
   },
   {
     q: "Do I need to know the full choreography?",
-    a: "Nope! Most people only know the chorus — that is totally fine. Dance what you know, vibe for the rest.",
+    a: "Nope! Most people only know the chorus. That is totally fine. Dance what you know, vibe for the rest.",
   },
   {
     q: "Is it free? Do I need to register?",
@@ -264,7 +264,7 @@ const faqs: Faq[] = [
   },
   {
     q: "Can I get the photos from an event?",
-    a: "Yes! Photos live on that event's page and in the gallery. Some events also have their own Google Drive album — free to download and post (tag us 💜).",
+    a: "Yes! Photos live on that event's page and in the gallery. Some events also have their own Google Drive album, free to download and post (tag us 💜).",
   },
 ];
 

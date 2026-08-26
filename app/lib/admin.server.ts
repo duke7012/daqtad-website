@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { parseSongLines } from "~/lib/admin-utils";
 import type {
+  AdminAboutPhoto,
+  AdminAboutSection,
   AdminEvent,
+  AdminExtraPhoto,
+  AdminExtraProject,
   AdminFaq,
   AdminPhoto,
   AdminRequestRow,
@@ -145,7 +149,7 @@ export async function deleteRound(sb: SupabaseClient, id: string) {
 
 export async function swapPositions(
   sb: SupabaseClient,
-  table: "rounds" | "photos" | "faqs" | "round_songs",
+  table: "rounds" | "photos" | "faqs" | "round_songs" | "about_sections" | "extras_projects" | "about_photos" | "extras_photos",
   list: { id: string }[],
   id: string,
   direction: number,
@@ -257,13 +261,177 @@ export async function deleteRequest(sb: SupabaseClient, id: string) {
   await q(sb.from("song_requests").delete().eq("id", id));
 }
 
-export async function saveSettings(sb: SupabaseClient, values: { instagram: string; facebook: string }) {
+export async function saveSettings(
+  sb: SupabaseClient,
+  values: Partial<{
+    instagram: string;
+    facebook: string;
+    about_title: string;
+    about_pronunciation: string;
+    about_intro: string;
+    about_mosaic_photos: string;
+    about_vietnam_photos: string;
+    about_utah_photos: string;
+    extras_title: string;
+    extras_intro: string;
+  }>,
+) {
   await q(
     sb
       .from("site_settings")
       .update({ ...values, updated_at: new Date().toISOString() })
       .eq("id", true),
   );
+}
+
+export async function listAboutSections(sb: SupabaseClient): Promise<AdminAboutSection[]> {
+  return (
+    (await q<AdminAboutSection[]>(sb.from("about_sections").select("*").order("position", { ascending: true }))) || []
+  );
+}
+
+export async function addAboutSection(sb: SupabaseClient, sections: AdminAboutSection[]) {
+  await q(
+    sb.from("about_sections").insert({
+      heading: "New section",
+      body: "",
+      mission: "",
+      closing: "",
+      link_label: "",
+      link_href: "",
+      photo_band: "",
+      videos: "",
+      position: nextPosition(sections),
+    }),
+  );
+}
+
+export async function updateAboutSection(
+  sb: SupabaseClient,
+  id: string,
+  patch: Partial<{
+    heading: string;
+    body: string;
+    mission: string;
+    closing: string;
+    link_label: string;
+    link_href: string;
+    photo_band: string;
+    videos: string;
+  }>,
+) {
+  await q(sb.from("about_sections").update(patch).eq("id", id));
+}
+
+export async function deleteAboutSection(sb: SupabaseClient, id: string) {
+  await q(sb.from("about_sections").delete().eq("id", id));
+}
+
+export async function listExtraProjects(sb: SupabaseClient): Promise<AdminExtraProject[]> {
+  return (
+    (await q<AdminExtraProject[]>(sb.from("extras_projects").select("*").order("position", { ascending: true }))) || []
+  );
+}
+
+export async function addExtraProject(sb: SupabaseClient, projects: AdminExtraProject[]) {
+  await q(
+    sb.from("extras_projects").insert({
+      slug: `project-${projects.length + 1}`,
+      title: "New project",
+      eyebrow: "",
+      body: "",
+      videos: "",
+      photo_count: 0,
+      position: nextPosition(projects),
+    }),
+  );
+}
+
+export async function updateExtraProject(
+  sb: SupabaseClient,
+  id: string,
+  patch: Partial<{
+    slug: string;
+    title: string;
+    eyebrow: string;
+    body: string;
+    videos: string;
+    photo_count: number;
+  }>,
+) {
+  await q(sb.from("extras_projects").update(patch).eq("id", id));
+}
+
+export async function deleteExtraProject(sb: SupabaseClient, id: string) {
+  await q(sb.from("extras_projects").delete().eq("id", id));
+}
+
+export async function listAboutPhotos(sb: SupabaseClient, sectionId?: string): Promise<AdminAboutPhoto[]> {
+  let query = sb.from("about_photos").select("*").order("position", { ascending: true });
+  if (sectionId) query = query.eq("section_id", sectionId);
+  return (await q<AdminAboutPhoto[]>(query)) || [];
+}
+
+export async function addAboutPhotos(
+  sb: SupabaseClient,
+  sectionId: string,
+  urls: string[],
+  photos: AdminAboutPhoto[],
+) {
+  const position = nextPosition(photos);
+  if (!urls.length) return;
+  await q(
+    sb.from("about_photos").insert(
+      urls.map((url, i) => ({
+        section_id: sectionId,
+        url,
+        alt: "",
+        position: position + i,
+      })),
+    ),
+  );
+}
+
+export async function updateAboutPhotoAlt(sb: SupabaseClient, id: string, alt: string) {
+  await q(sb.from("about_photos").update({ alt }).eq("id", id));
+}
+
+export async function deleteAboutPhoto(sb: SupabaseClient, id: string) {
+  await q(sb.from("about_photos").delete().eq("id", id));
+}
+
+export async function listExtraPhotos(sb: SupabaseClient, projectId?: string): Promise<AdminExtraPhoto[]> {
+  let query = sb.from("extras_photos").select("*").order("position", { ascending: true });
+  if (projectId) query = query.eq("project_id", projectId);
+  return (await q<AdminExtraPhoto[]>(query)) || [];
+}
+
+export async function addExtraPhotos(
+  sb: SupabaseClient,
+  projectId: string,
+  urls: string[],
+  photos: AdminExtraPhoto[],
+) {
+  const position = nextPosition(photos);
+  if (!urls.length) return;
+  await q(
+    sb.from("extras_photos").insert(
+      urls.map((url, i) => ({
+        project_id: projectId,
+        url,
+        alt: "",
+        position: position + i,
+      })),
+    ),
+  );
+}
+
+export async function updateExtraPhotoAlt(sb: SupabaseClient, id: string, alt: string) {
+  await q(sb.from("extras_photos").update({ alt }).eq("id", id));
+}
+
+export async function deleteExtraPhoto(sb: SupabaseClient, id: string) {
+  await q(sb.from("extras_photos").delete().eq("id", id));
 }
 
 export async function updatePhotoAlt(sb: SupabaseClient, id: string, alt: string) {
@@ -280,7 +448,7 @@ export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 export function assertUploadSize(file: File) {
   if (file.size > MAX_UPLOAD_BYTES) {
     const mb = (file.size / (1024 * 1024)).toFixed(1);
-    throw new Error(`"${file.name}" is ${mb} MB after upload — max 4 MB. Compression may have failed.`);
+    throw new Error(`"${file.name}" is ${mb} MB after upload - max 4 MB. Compression may have failed.`);
   }
 }
 
