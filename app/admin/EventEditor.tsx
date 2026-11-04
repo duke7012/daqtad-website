@@ -226,13 +226,6 @@ export function EventEditor({
             hint=" - one post URL per line; add “ | caption” to override the hover text"
           />
           <Field
-            label="Sort order"
-            name="position"
-            defaultValue={event.position || 0}
-            type="number"
-            hint=" - higher shows first"
-          />
-          <Field
             label="Custom page"
             name="page"
             defaultValue={event.page || ""}

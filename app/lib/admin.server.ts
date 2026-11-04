@@ -37,7 +37,15 @@ function isDuplicate(error: { code?: string; message?: string } | null) {
 }
 
 export async function listEvents(sb: SupabaseClient): Promise<AdminEvent[]> {
-  return (await q<AdminEvent[]>(sb.from("events").select("*").order("position", { ascending: false }))) || [];
+  return (
+    (await q<AdminEvent[]>(
+      sb
+        .from("events")
+        .select("*")
+        .order("position", { ascending: false })
+        .order("created_at", { ascending: false }),
+    )) || []
+  );
 }
 
 async function fetchSongPage(sb: SupabaseClient, from: number, collected: AdminSong[]): Promise<AdminSong[]> {
@@ -128,7 +136,31 @@ export async function saveEvent(
   if (id) {
     return q<AdminEvent>(sb.from("events").update(payload).eq("id", id).select().single());
   }
-  return q<AdminEvent>(sb.from("events").insert(payload).select().single());
+  // New events go to the top of the list (events sort highest position first).
+  const events = await listEvents(sb);
+  const position = nextPosition(events);
+  return q<AdminEvent>(sb.from("events").insert({ ...payload, position }).select().single());
+}
+
+/**
+ * Move one event up (direction -1) or down (+1) in the list shown on the
+ * Events page. Events sort by position, highest first, so after the move the
+ * whole list is renumbered n-1 … 0. That also cleans up ties left over from
+ * the old hand-typed sort numbers. Only rows whose number changed are written.
+ */
+export async function moveEvent(sb: SupabaseClient, events: AdminEvent[], id: string, direction: number) {
+  const index = events.findIndex((row) => row.id === id);
+  const other = index + direction;
+  if (index < 0 || other < 0 || other >= events.length) return;
+  const order = events.slice();
+  [order[index], order[other]] = [order[other], order[index]];
+  const last = order.length - 1;
+  await Promise.all(
+    order
+      .map((row, i) => ({ row, position: last - i }))
+      .filter(({ row, position }) => row.position !== position)
+      .map(({ row, position }) => q(sb.from("events").update({ position }).eq("id", row.id))),
+  );
 }
 
 export async function deleteEvent(sb: SupabaseClient, id: string) {
