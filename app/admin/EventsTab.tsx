@@ -7,18 +7,23 @@ import type { AdminEvent } from "~/types";
 type Drag = {
   id: string;
   pointerId: number;
+  /** Index the row started at, and the index it would land at if dropped now. */
+  from: number;
+  to: number;
   /** Where in the row the pointer grabbed it, from the row's top edge. */
   grabOffset: number;
-  /** Order before the drag started, to restore on cancel and to skip no-op saves. */
-  startOrder: string[];
+  /** Row tops and heights measured when the drag started. The DOM order is left alone
+   * until the drop (moving the held element would make the browser drop the touch),
+   * so these stay valid for the whole drag. */
+  tops: number[];
+  heights: number[];
+  gap: number;
+  /** How far the dragged row is drawn from its own slot. */
+  dy: number;
 };
 
 /** Distance from the window edge where dragging starts scrolling the page. */
 const EDGE = 64;
-
-function sameOrder(a: string[], b: string[]) {
-  return a.length === b.length && a.every((id, i) => id === b[i]);
-}
 
 export function EventsTab({ events }: { events: AdminEvent[] }) {
   const fetcher = useFetcher<{ message?: string; failed?: boolean }>();
@@ -26,8 +31,12 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
   const serverKey = serverOrder.join(",");
 
   const [order, setOrder] = useState(serverOrder);
-  const [drag, setDrag] = useState<Drag | null>(null);
-  const [dragY, setDragY] = useState(0);
+  const [drag, setDragState] = useState<Drag | null>(null);
+  // Handlers read the drag from a ref so back-to-back events (pointerup, then
+  // lostpointercapture) see the latest value and never finish a drag twice.
+  const dragRef = useRef<Drag | null>(null);
+  const lastClientY = useRef(0);
+  const scrollFrame = useRef(0);
   const listRef = useRef<HTMLDivElement>(null);
   const keyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
@@ -55,10 +64,60 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
     return clientY - (listRef.current?.getBoundingClientRect().top ?? 0);
   }
 
+  function setDrag(next: Drag | null) {
+    dragRef.current = next;
+    setDragState(next);
+  }
+
+  /** Work out where the dragged row would land for this pointer position. */
+  function track(clientY: number) {
+    const d = dragRef.current;
+    if (!d) return;
+    const top = listY(clientY) - d.grabOffset;
+    const middle = top + d.heights[d.from] / 2;
+    const mid = (i: number) => d.tops[i] + d.heights[i] / 2;
+    let to = d.from;
+    while (to > 0 && middle < mid(to - 1)) to -= 1;
+    if (to === d.from) {
+      while (to < d.tops.length - 1 && middle > mid(to + 1)) to += 1;
+    }
+    setDrag({ ...d, to, dy: top - d.tops[d.from] });
+  }
+
+  /** While dragging near the top or bottom of the window, keep scrolling, even if the pointer holds still. */
+  function autoScroll() {
+    if (!dragRef.current) return;
+    const y = lastClientY.current;
+    const step =
+      y < EDGE ? -Math.ceil((EDGE - y) / 4) : y > window.innerHeight - EDGE ? Math.ceil((y - (window.innerHeight - EDGE)) / 4) : 0;
+    if (step) {
+      window.scrollBy(0, step);
+      track(y);
+    }
+    scrollFrame.current = requestAnimationFrame(autoScroll);
+  }
+
+  function finish(commit: boolean) {
+    const d = dragRef.current;
+    if (!d) return;
+    cancelAnimationFrame(scrollFrame.current);
+    setDrag(null);
+    if (!commit || d.to === d.from) return;
+    const next = order.slice();
+    const [moved] = next.splice(d.from, 1);
+    next.splice(d.to, 0, moved);
+    setOrder(next);
+    save(next);
+  }
+
+  useEffect(() => () => cancelAnimationFrame(scrollFrame.current), []);
+
   function onPointerDown(e: PointerEvent<HTMLButtonElement>, id: string) {
-    if (e.button !== 0 || drag) return;
-    const row = rowRefs.current.get(id);
-    if (!row) return;
+    if (e.button !== 0 || dragRef.current) return;
+    const from = order.indexOf(id);
+    const rowEls = order.map((rowId) => rowRefs.current.get(rowId));
+    if (from < 0 || rowEls.some((el) => !el)) return;
+    const els = rowEls as HTMLDivElement[];
     e.preventDefault();
     try {
       // Keep receiving moves even when the pointer leaves the small handle.
@@ -66,68 +125,42 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
     } catch {
       return;
     }
-    setDrag({ id, pointerId: e.pointerId, grabOffset: listY(e.clientY) - row.offsetTop, startOrder: order });
-    setDragY(0);
+    const tops = els.map((el) => el.offsetTop);
+    const heights = els.map((el) => el.offsetHeight);
+    const gap = els.length > 1 ? Math.max(0, tops[1] - tops[0] - heights[0]) : 0;
+    lastClientY.current = e.clientY;
+    setDrag({ id, pointerId: e.pointerId, from, to: from, grabOffset: listY(e.clientY) - tops[from], tops, heights, gap, dy: 0 });
+    scrollFrame.current = requestAnimationFrame(autoScroll);
   }
 
   function onPointerMove(e: PointerEvent<HTMLButtonElement>) {
-    if (!drag || e.pointerId !== drag.pointerId) return;
-    const row = rowRefs.current.get(drag.id);
-    if (!row) return;
-
-    if (e.clientY < EDGE) window.scrollBy(0, -12);
-    else if (e.clientY > window.innerHeight - EDGE) window.scrollBy(0, 12);
-
-    // Where the dragged row's top edge would be if it followed the pointer exactly.
-    const top = listY(e.clientY) - drag.grabOffset;
-    const middle = top + row.offsetHeight / 2;
-
-    // Step past neighbours whose middle the dragged row has crossed.
-    let next = order;
-    let index = next.indexOf(drag.id);
-    for (;;) {
-      const above = index > 0 ? rowRefs.current.get(next[index - 1]) : undefined;
-      const below = index < next.length - 1 ? rowRefs.current.get(next[index + 1]) : undefined;
-      if (above && middle < above.offsetTop + above.offsetHeight / 2) {
-        next = next.slice();
-        [next[index - 1], next[index]] = [next[index], next[index - 1]];
-        index -= 1;
-      } else if (below && middle > below.offsetTop + below.offsetHeight / 2) {
-        next = next.slice();
-        [next[index + 1], next[index]] = [next[index], next[index + 1]];
-        index += 1;
-      } else {
-        break;
-      }
-    }
-    if (next !== order) setOrder(next);
-
-    // Rows keep their offsetTop from layout (transforms don't change it), so the slot the
-    // dragged row sits in after this move is: slot of the row now above it + its height + gap.
-    const gap = 8;
-    let slotTop = 0;
-    for (const id of next) {
-      if (id === drag.id) break;
-      const el = rowRefs.current.get(id);
-      if (el) slotTop += el.offsetHeight + gap;
-    }
-    setDragY(top - slotTop);
+    if (dragRef.current?.pointerId !== e.pointerId) return;
+    lastClientY.current = e.clientY;
+    track(e.clientY);
   }
 
-  function endDrag(e: PointerEvent<HTMLButtonElement>, cancelled: boolean) {
-    if (!drag || e.pointerId !== drag.pointerId) return;
-    const start = drag.startOrder;
-    setDrag(null);
-    setDragY(0);
-    if (cancelled) {
-      setOrder(start);
-    } else if (!sameOrder(order, start)) {
-      save(order);
-    }
+  function onPointerEnd(e: PointerEvent<HTMLButtonElement>, commit: boolean) {
+    if (dragRef.current?.pointerId !== e.pointerId) return;
+    finish(commit);
+  }
+
+  /** How far to draw each row from its slot while a drag is in progress. */
+  function rowShift(index: number) {
+    if (!drag) return 0;
+    if (index === drag.from) return drag.dy;
+    const room = drag.heights[drag.from] + drag.gap;
+    if (drag.from < drag.to && index > drag.from && index <= drag.to) return -room;
+    if (drag.to < drag.from && index >= drag.to && index < drag.from) return room;
+    return 0;
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLButtonElement>, id: string) {
-    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    if (e.key === "Escape" && dragRef.current) {
+      e.preventDefault();
+      finish(false);
+      return;
+    }
+    if (dragRef.current || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
     e.preventDefault();
     const index = order.indexOf(id);
     const other = index + (e.key === "ArrowUp" ? -1 : 1);
@@ -185,7 +218,7 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
                   if (el) rowRefs.current.set(ev.id, el);
                   else rowRefs.current.delete(ev.id);
                 }}
-                style={dragging ? { transform: `translateY(${dragY}px)` } : undefined}
+                style={drag ? { transform: `translateY(${rowShift(index)}px)` } : undefined}
               >
                 {events.length > 1 ? (
                   <button
@@ -196,8 +229,9 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
                     title="Drag to reorder"
                     onPointerDown={(e) => onPointerDown(e, ev.id)}
                     onPointerMove={onPointerMove}
-                    onPointerUp={(e) => endDrag(e, false)}
-                    onPointerCancel={(e) => endDrag(e, true)}
+                    onPointerUp={(e) => onPointerEnd(e, true)}
+                    onPointerCancel={(e) => onPointerEnd(e, false)}
+                    onLostPointerCapture={(e) => onPointerEnd(e, true)}
                     onKeyDown={(e) => onKeyDown(e, ev.id)}
                   >
                     ⠿
