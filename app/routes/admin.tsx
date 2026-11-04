@@ -44,6 +44,7 @@ import {
   listSongs,
   loadEventDetail,
   loadRoundSongs,
+  moveEvent,
   parseSongLines,
   removeRoundSong,
   renameRound,
@@ -126,7 +127,6 @@ function eventPayload(form: FormData) {
     show_facebook: form.get("show_facebook") === "on",
     show_youtube: form.get("show_youtube") === "on",
     show_drive: form.get("show_drive") === "on",
-    position: Number(str(form, "position")) || 0,
     requests_open: form.get("requests_open") === "on",
   };
 }
@@ -267,6 +267,11 @@ export async function action({ request }: Route.ActionArgs) {
           banner_url: str(form, "banner_url"),
         });
         return ok("Saved ✓");
+      }
+      case "event-move": {
+        const events = await listEvents(supabase);
+        await moveEvent(supabase, events, str(form, "id"), Number(str(form, "dir")));
+        return ok("");
       }
       case "event-delete": {
         await deleteEvent(supabase, str(form, "id"));

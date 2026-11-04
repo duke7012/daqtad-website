@@ -248,7 +248,7 @@ const SELECT =
 
 async function loadFromDatabase(): Promise<SiteData> {
   const [eventRows, faqRows, settingRows] = await Promise.all([
-    rest<DbEvent[]>(`events?${SELECT}&order=position.desc`),
+    rest<DbEvent[]>(`events?${SELECT}&order=position.desc,created_at.desc`),
     rest<DbFaq[]>("faqs?select=question,answer,position&order=position.asc"),
     rest<DbSettings[]>("site_settings?select=*&limit=1"),
   ]);

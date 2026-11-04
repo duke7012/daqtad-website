@@ -11,10 +11,13 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
           + New event
         </a>
       </div>
+      {events.length > 1 ? (
+        <p className="admin-hint">Events show on the Events page in this order. Use ↑ and ↓ to rearrange them.</p>
+      ) : null}
       {!events.length ? (
         <div className="admin-empty">No events yet. Add your first one.</div>
       ) : (
-        events.map((ev) => {
+        events.map((ev, index) => {
           const when = ev.starts_at
             ? new Date(ev.starts_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -36,6 +39,36 @@ export function EventsTab({ events }: { events: AdminEvent[] }) {
                 </div>
               </div>
               <div className="admin-row__actions">
+                <Form method="post">
+                  <input type="hidden" name="id" value={ev.id} />
+                  <input type="hidden" name="dir" value="-1" />
+                  <button
+                    className="btn btn--xs btn--ghost"
+                    type="submit"
+                    name="intent"
+                    value="event-move"
+                    disabled={index === 0}
+                    aria-label={`Move "${ev.name}" up`}
+                    title="Move up"
+                  >
+                    ↑
+                  </button>
+                </Form>
+                <Form method="post">
+                  <input type="hidden" name="id" value={ev.id} />
+                  <input type="hidden" name="dir" value="1" />
+                  <button
+                    className="btn btn--xs btn--ghost"
+                    type="submit"
+                    name="intent"
+                    value="event-move"
+                    disabled={index === events.length - 1}
+                    aria-label={`Move "${ev.name}" down`}
+                    title="Move down"
+                  >
+                    ↓
+                  </button>
+                </Form>
                 <a className="btn btn--xs btn--ghost" href={page} target="_blank" rel="noopener">
                   Open ↗
                 </a>
