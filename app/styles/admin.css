@@ -596,6 +596,8 @@ details.admin-card .admin-hint { margin-top: 12px; }
 /* The list is the rows' offsetParent, so row offsets are measured from its top. */
 .event-sort { position: relative; }
 .event-sort.is-sorting { user-select: none; -webkit-user-select: none; cursor: grabbing; }
+/* While dragging, the other rows slide out of the way; the page order only changes on drop. */
+.event-sort.is-sorting .admin-row:not(.is-dragging) { transition: transform 160ms ease; }
 
 .admin-row--sortable { justify-content: flex-start; }
 .admin-row--sortable .admin-row__main { flex: 1 1 200px; }
@@ -624,6 +626,9 @@ details.admin-card .admin-hint { margin-top: 12px; }
   line-height: 1;
   cursor: grab;
   touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .drag-handle:hover { color: var(--ink); background: var(--line-soft); }
 .drag-handle:focus-visible { outline: 2px solid var(--violet); outline-offset: 1px; color: var(--ink); }
