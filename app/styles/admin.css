@@ -591,5 +591,43 @@ details.admin-card .admin-hint { margin-top: 12px; }
 
 .admin-thumb__row { display: flex; gap: 4px; justify-content: space-between; }
 
-/* Event reorder arrows: dim the one that can't move further. */
-.admin-row__actions .btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+/* ------------------------------------------------- event drag-and-drop -- */
+
+/* The list is the rows' offsetParent, so row offsets are measured from its top. */
+.event-sort { position: relative; }
+.event-sort.is-sorting { user-select: none; -webkit-user-select: none; cursor: grabbing; }
+
+.admin-row--sortable { justify-content: flex-start; }
+.admin-row--sortable .admin-row__main { flex: 1 1 200px; }
+
+.admin-row--sortable.is-dragging {
+  position: relative;
+  z-index: 2;
+  border-color: var(--violet);
+  box-shadow: 0 12px 28px rgb(42 39 53 / 0.18);
+  background: color-mix(in srgb, var(--violet) 6%, var(--surface));
+}
+
+.drag-handle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 40px;
+  margin: -4px 0 -4px -6px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+}
+.drag-handle:hover { color: var(--ink); background: var(--line-soft); }
+.drag-handle:focus-visible { outline: 2px solid var(--violet); outline-offset: 1px; color: var(--ink); }
+.is-dragging .drag-handle { cursor: grabbing; color: var(--violet-strong); }
+
+.event-sort__status { font-weight: 700; color: var(--violet-strong); }
+.event-sort__status.is-error { color: var(--rose-strong); }

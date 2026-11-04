@@ -143,24 +143,25 @@ export async function saveEvent(
 }
 
 /**
- * Move one event up (direction -1) or down (+1) in the list shown on the
- * Events page. Events sort by position, highest first, so after the move the
- * whole list is renumbered n-1 … 0. That also cleans up ties left over from
- * the old hand-typed sort numbers. Only rows whose number changed are written.
+ * Save a new order for the events list (ids top to bottom, as on the Events
+ * page). Events sort by position, highest first, so the list is renumbered
+ * n-1 … 0. Only rows whose number changed are written. Returns false when the
+ * ids don't match the events in the database (e.g. someone added or deleted
+ * one meanwhile), so nothing is saved from a stale list.
  */
-export async function moveEvent(sb: SupabaseClient, events: AdminEvent[], id: string, direction: number) {
-  const index = events.findIndex((row) => row.id === id);
-  const other = index + direction;
-  if (index < 0 || other < 0 || other >= events.length) return;
-  const order = events.slice();
-  [order[index], order[other]] = [order[other], order[index]];
-  const last = order.length - 1;
+export async function reorderEvents(sb: SupabaseClient, events: AdminEvent[], ids: string[]) {
+  const byId = new Map(events.map((row) => [row.id, row]));
+  if (ids.length !== events.length || new Set(ids).size !== ids.length || !ids.every((id) => byId.has(id))) {
+    return false;
+  }
+  const last = ids.length - 1;
   await Promise.all(
-    order
-      .map((row, i) => ({ row, position: last - i }))
+    ids
+      .map((id, i) => ({ row: byId.get(id)!, position: last - i }))
       .filter(({ row, position }) => row.position !== position)
       .map(({ row, position }) => q(sb.from("events").update({ position }).eq("id", row.id))),
   );
+  return true;
 }
 
 export async function deleteEvent(sb: SupabaseClient, id: string) {

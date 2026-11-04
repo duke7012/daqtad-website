@@ -44,8 +44,8 @@ import {
   listSongs,
   loadEventDetail,
   loadRoundSongs,
-  moveEvent,
   parseSongLines,
+  reorderEvents,
   removeRoundSong,
   renameRound,
   replaceRoundSongs,
@@ -268,10 +268,21 @@ export async function action({ request }: Route.ActionArgs) {
         });
         return ok("Saved ✓");
       }
-      case "event-move": {
-        const events = await listEvents(supabase);
-        await moveEvent(supabase, events, str(form, "id"), Number(str(form, "dir")));
-        return ok("");
+      case "event-reorder": {
+        let ids: unknown;
+        try {
+          ids = JSON.parse(str(form, "ids"));
+        } catch {
+          ids = null;
+        }
+        if (!Array.isArray(ids) || !ids.every((id) => typeof id === "string")) {
+          return ok("", { message: "Couldn't read the new order.", failed: true });
+        }
+        const saved = await reorderEvents(supabase, await listEvents(supabase), ids);
+        if (!saved) {
+          return ok("", { message: "The events list changed while you were editing. Reload and try again.", failed: true });
+        }
+        return ok("Order saved ✓");
       }
       case "event-delete": {
         await deleteEvent(supabase, str(form, "id"));
